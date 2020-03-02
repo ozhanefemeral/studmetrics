@@ -13,9 +13,14 @@
     "database": "stud_test",
     "host": "127.0.0.1",
     "dialect": "postgres",
-    "operatorsAliases": false,
+    "operatorsAliases": false
   },
   "production": {
-    "use_env_variable": "DATABASE_URL"
+    "username": "efebey",
+    "password": "Ozhanburadaydi.",
+    "database": "stud_prod",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "operatorsAliases": false
   }
 }
