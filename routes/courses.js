@@ -28,4 +28,17 @@ router.get('/:id', auth, async (req, res) => {
     })
 })
 
+router.delete('/:id', auth, async (req, res) => {
+    Course.destroy({
+        where: {
+            id: req.params.id
+        }
+    }).then(() => {
+        res.status(200).send()
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send()
+    })
+})
+
 module.exports = router;

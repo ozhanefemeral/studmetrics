@@ -43,4 +43,17 @@ router.get('/:lectureId/homeworks', auth, async (req, res) => {
     })
 })
 
+router.delete('/:id', auth, async (req, res) => {
+    Lecture.destroy({
+        where: {
+            id: req.params.id
+        }
+    }).then(() => {
+        res.status(200).send()
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send()
+    })
+})
+
 module.exports = router;
