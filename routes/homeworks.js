@@ -51,4 +51,17 @@ router.get('/:homeworkId', auth, async (req, res) => {
         .then(homework => res.send(homework))
 })
 
+router.delete('/:homeworkId', auth, async (req, res) => {
+    Homework.destroy({
+        where: {
+            id: req.params.homeworkId
+        }
+    }).then(() => {
+        res.status(200).send()
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send()
+    })
+})
+
 module.exports = router;

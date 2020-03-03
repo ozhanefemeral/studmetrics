@@ -26,9 +26,7 @@ app.use('/api/students', studentsRoute)
 app.use('/api/homeworks', homeworksRoute)
 app.use('/api/assignments', assignmentsRoute)
 
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(__dirname + '/public/'));
-}
+app.use(express.static(__dirname + '/public/'));
 
 app.listen(port, async () => {
     console.log(`Server is ready @ port:${port}`);

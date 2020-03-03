@@ -22,8 +22,8 @@ router.get('/:assignmentId', auth, async (req, res) => {
 router.patch('/', auth, async (req, res) => {
     Assignment.findOne({
         where: {
-            studentId: studentId,
-            homeworkId: homeworkId
+            studentId: req.query.studentId,
+            homeworkId: req.query.homeworkId
         }
     }).then(assignment => {
         return assignment.update(req.body)
