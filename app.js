@@ -9,7 +9,6 @@ db.sequelize.sync()
 
 app.use(cors())
 app.use(bodyParser.json())
-app.use(history());
 
 const schoolRoute = require('./routes/schools')
 const teacherRoute = require('./routes/teachers')
