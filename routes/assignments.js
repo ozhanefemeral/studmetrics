@@ -20,25 +20,27 @@ router.get('/:assignmentId', auth, async (req, res) => {
 })
 
 router.patch('/', auth, async (req, res) => {
+    
     req.body.mark = 0;
 
-    const assignment = await Assignment.findOne({
+    const assignment = await Assignment.findOrCreate({
         where: {
             studentId: req.query.studentId,
-            homeworkId: req.query.homeworkId
+            homeworkId: req.query.homeworkId,
+        },
+        defaults: {
+            studentId: req.query.studentId,
+            homeworkId: req.query.homeworkId,
+            answers: req.body.answers
         }
     })
 
     const homework = await assignment.getHomework()
-    console.log(homework.dataValues);
-
 
     for (let i = 0; i < homework.dataValues.questions.length; i++) {
-        console.log(i);
-
         const question = homework.dataValues.questions[i];
         if (question.answer != undefined) {
-            if (assignment.answers[i] == question.answer) {
+            if (assignment.dataValues.answers[i] == question.answer) {
                 req.body.mark += question.point
             }
         }
