@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
 
-const { Lecture, Enrolled, Student } = require('../models/index')
+const { Offer, Enrolled, Student } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
-    Lecture.create(req.body)
-        .then(lecture => {
-            res.send(lecture)
+    Offer.create(req.body)
+        .then(offer => {
+            res.send(offer)
         })
         .catch(err => {
             console.log(err);
@@ -15,26 +15,26 @@ router.post('/', auth, async (req, res) => {
         })
 })
 
-router.get('/:lectureId', auth, async (req, res) => {
-    Lecture.findOne({
+router.get('/:offerId', auth, async (req, res) => {
+    Offer.findOne({
         where: {
-            id: req.params.lectureId
+            id: req.params.offerId
         }
-    }).then(lecture => {
-        res.send(lecture)
+    }).then(offer => {
+        res.send(offer)
     }).catch(err => {
         console.log(err);
         res.status(400).send()
     })
 })
 
-router.get('/:lectureId/homeworks', auth, async (req, res) => {
-    Lecture.findOne({
+router.get('/:offerId/homeworks', auth, async (req, res) => {
+    Offer.findOne({
         where: {
-            id: req.params.lectureId
+            id: req.params.offerId
         }
-    }).then(lecture => {
-        return lecture.getHomeworks()
+    }).then(offer => {
+        return offer.getHomeworks()
     }).then(homeworks => {
         res.send(homeworks)
     }).catch(err => {
@@ -43,13 +43,13 @@ router.get('/:lectureId/homeworks', auth, async (req, res) => {
     })
 })
 
-router.get('/:lectureId/students', auth, async (req, res) => {
+router.get('/:offerId/students', auth, async (req, res) => {
 
     let studentPromises = []
     let students = []
     Enrolled.findAll({
         where: {
-            lectureId: req.params.lectureId
+            offerId: req.params.offerId
         }
     }).then(enrolleds => {
         for (let i = 0; i < enrolleds.length; i++) {
@@ -71,10 +71,10 @@ router.get('/:lectureId/students', auth, async (req, res) => {
     })
 })
 
-router.delete('/:lectureId', auth, async (req, res) => {
-    Lecture.destroy({
+router.delete('/:offerId', auth, async (req, res) => {
+    Offer.destroy({
         where: {
-            id: req.params.lectureId
+            id: req.params.offerId
         }
     }).then(() => {
         res.status(200).send()
@@ -84,7 +84,7 @@ router.delete('/:lectureId', auth, async (req, res) => {
     })
 })
 
-router.delete('/:lectureId/unenroll/', auth, async (req, res) => {
+router.delete('/:offerId/unenroll/', auth, async (req, res) => {
     students = req.body
     enrolledPromises = []
 
@@ -96,7 +96,7 @@ router.delete('/:lectureId/unenroll/', auth, async (req, res) => {
         enrolledPromises.push(Enrolled.destroy({
             where: {
                 studentId: el,
-                lectureId: req.params.lectureId
+                offerId: req.params.offerId
             }
         }))
     }

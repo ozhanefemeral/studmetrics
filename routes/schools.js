@@ -73,7 +73,7 @@ router.get('/:id/students', auth, async (req, res) => {
     })
 })
 
-router.get('/:id/lectures', auth, async (req, res) => {
+router.get('/:id/offers', auth, async (req, res) => {
     School.findOne({
         where: {
             id: req.params.id
@@ -82,15 +82,15 @@ router.get('/:id/lectures', auth, async (req, res) => {
         return school.getCourses()
     }).then(courses => {
         let promises = []
-        let allLectures = []
+        let allOffers = []
         for (let i = 0; i < courses.length; i++) {
             const el = courses[i];
-            promises.push(el.getLectures().then(courseLectures => {
-                allLectures.push(...courseLectures)
+            promises.push(el.getOffers().then(offers => {
+                allOffers.push(...offers)
             }))
         }
         Promise.all(promises).then(() => {
-            res.send(allLectures)
+            res.send(allOffers)
         })
     }).catch(err => {
         console.log(err);

@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { Student, Lecture, Enrolled } = require('../models/index')
+const { Student, Offer, Enrolled } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
@@ -75,19 +75,19 @@ router.get('/:id/enrolleds', auth, async (req, res) => {
 router.post('/:id/enroll', auth, async (req, res) => {
     let promises = []
 
-    for (let i = 0; i < req.body.lectureIds.length; i++) {
-        const el = req.body.lectureIds[i];
+    for (let i = 0; i < req.body.offerIds.length; i++) {
+        const el = req.body.offerIds[i];
         console.log(el);
 
-        Lecture.findOne({
+        Offer.findOne({
             where: {
                 id: el
             }
-        }).then(lecture => {
+        }).then(offer => {
             promises.push(Enrolled.create({
                 studentId: req.params.id,
-                lectureId: lecture.dataValues.id,
-                courseId: lecture.dataValues.courseId
+                offerId: offer.dataValues.id,
+                courseId: offer.dataValues.courseId
             }))
         })
     }

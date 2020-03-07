@@ -6,14 +6,14 @@ const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
 
-    lectureId = req.body.lectureId
+    offerId = req.body.offerId
 
     let assignmentPromises = []
 
     Homework.create(req.body).then(homework => {
         Enrolled.findAll({
             where: {
-                lectureId: lectureId
+                offerId: offerId
             }
         }).then(enrolleds => {
             for (let i = 0; i < enrolleds.length; i++) {

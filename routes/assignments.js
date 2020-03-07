@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { Homework, Enrolled, Assignment } = require('../models/index')
+const { Assignment } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.get('/:assignmentId', auth, async (req, res) => {

@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     Teacher.belongsTo(models.School, {
       foreignKey: 'schoolId'
     })
-    Teacher.hasMany(models.Lecture, {
+    Teacher.hasMany(models.Offer, {
       foreignKey: 'teacherId'
     })
   };

@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     questions: DataTypes.ARRAY(DataTypes.JSON)
   }, {});
   Homework.associate = function (models) {
-    Homework.belongsTo(models.Lecture, {
-      foreignKey: 'lectureId',
-      as: 'lecture'
+    Homework.belongsTo(models.Offer, {
+      foreignKey: 'offerId',
+      as: 'offer'
     })
     Homework.hasMany(models.Assignment, {
       foreignKey: 'homeworkId'
