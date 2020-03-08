@@ -5,7 +5,9 @@ const app = express()
 const bodyParser = require('body-parser')
 const port = process.env.PORT || 3000
 const db = require('./models/index')
-db.sequelize.sync()
+db.sequelize.sync({ force: true }).then(() => {
+    require('./createDummy')
+})
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -27,6 +29,7 @@ app.use('/api/homeworks', homeworksRoute)
 app.use('/api/assignments', assignmentsRoute)
 
 app.use(express.static(__dirname + '/public/'));
+
 
 app.listen(port, async () => {
     console.log(`Server is ready @ port:${port}`);

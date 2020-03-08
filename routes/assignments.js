@@ -20,18 +20,18 @@ router.get('/:assignmentId', auth, async (req, res) => {
 })
 
 router.patch('/', auth, async (req, res) => {
+
+    if(req.query.teacher == true){
+        req.body.isReviewed = true
+    }
     
     req.body.mark = 0;
+    req.body.isCorrect = []
 
-    const assignment = await Assignment.findOrCreate({
+    const assignment = await Assignment.findOne({
         where: {
             studentId: req.query.studentId,
             homeworkId: req.query.homeworkId,
-        },
-        defaults: {
-            studentId: req.query.studentId,
-            homeworkId: req.query.homeworkId,
-            answers: req.body.answers
         }
     })
 
@@ -40,9 +40,14 @@ router.patch('/', auth, async (req, res) => {
     for (let i = 0; i < homework.dataValues.questions.length; i++) {
         const question = homework.dataValues.questions[i];
         if (question.answer != undefined) {
-            if (assignment.dataValues.answers[i] == question.answer) {
+            if (req.body.answers[i] == question.answer) {
                 req.body.mark += question.point
+                req.body.isCorrect.push(true)
+            } else{
+                req.body.isCorrect.push(false)
             }
+        } else{
+            req.body.isCorrect.push(null)
         }
     }
 
