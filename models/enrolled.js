@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Enrolled = sequelize.define('Enrolled', {
-    result: DataTypes.INTEGER
+    result: DataTypes.FLOAT,
   }, {});
   Enrolled.associate = function (models) {
     Enrolled.belongsTo(models.Student, {
@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     })
     Enrolled.belongsTo(models.Course, {
       foreignKey: 'courseId'
+    })
+    Enrolled.hasMany(models.Assignment, {
+      foreignKey: 'enrolledId'
     })
   };
   return Enrolled;

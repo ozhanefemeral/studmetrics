@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { Student, Offer, Enrolled } = require('../models/index')
+const { Student, Offer, Enrolled, Assignment } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
@@ -15,23 +15,20 @@ router.post('/', auth, async (req, res) => {
         })
 })
 
-router.get('/:id', auth, async (req, res) => {
-    Student.findOne({
-        where: {
-            id: req.params.id
-        }
-    }).then(student => {
-        res.send(student)
-    }).catch(err => {
-        console.log(err);
-        res.status(400).send()
-    })
+router.get('/:studentId', auth, async (req, res) => {
+    FindStudentById(req.params.studentId)
+        .then(student => {
+            res.send(student)
+        }).catch(err => {
+            console.log(err);
+            res.status(400).send()
+        })
 })
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:studentId', auth, async (req, res) => {
     Student.destroy({
         where: {
-            id: req.params.id
+            id: req.params.studentId
         }
     }).then(() => {
         res.status(200).send()
@@ -41,25 +38,10 @@ router.delete('/:id', auth, async (req, res) => {
     })
 })
 
-router.get('/:id/assignments', auth, async (req, res) => {
+router.get('/:studentId/enrolleds', auth, async (req, res) => {
     Student.findOne({
         where: {
-            id: req.params.id
-        }
-    }).then(student => {
-        return student.getAssignments()
-    }).then(assignments => {
-        res.send(assignments)
-    }).catch(err => {
-        console.log(err);
-        res.status(400).send()
-    })
-})
-
-router.get('/:id/enrolleds', auth, async (req, res) => {
-    Student.findOne({
-        where: {
-            id: req.params.id
+            id: req.params.studentId
         }
     }).then(student => {
         console.log(student);
@@ -72,7 +54,52 @@ router.get('/:id/enrolleds', auth, async (req, res) => {
     })
 })
 
-router.post('/:id/enroll', auth, async (req, res) => {
+router.get('/:studentId/average/all', auth, async (req, res) => {
+    const studentId = req.params.studentId;
+    CalculateStudentAverage(studentId)
+        .then(average => {
+            res.send({ average: average })
+        })
+        .catch(err => {
+            console.log(err);
+            res.send(400)
+        })
+})
+
+router.get('/:studentId/average/:enrolledId', auth, async (req, res) => {
+    const enrolledId = req.params.enrolledId
+
+    let sum = 0;
+
+    Enrolled.findOne({
+        where: {
+            id: enrolledId
+        }
+    }).then(enrolled => {
+        return enrolled.getAssignments()
+    }).then(assignments => {
+        let filtered = assignments.filter(el => el.isReviewed == true)
+        let reviewedCount = filtered.length
+
+        for (let i = 0; i < reviewedCount; i++) {
+            const el = filtered[i].mark;
+
+            sum += el;
+        }
+
+        let average = sum / reviewedCount
+
+        res.send({ average: average })
+    })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(400)
+        })
+
+
+})
+
+router.post('/:studentId/enroll', auth, async (req, res) => {
     let promises = []
 
     for (let i = 0; i < req.body.offerIds.length; i++) {
@@ -85,7 +112,7 @@ router.post('/:id/enroll', auth, async (req, res) => {
             }
         }).then(offer => {
             promises.push(Enrolled.create({
-                studentId: req.params.id,
+                studentId: req.params.studentId,
                 offerId: offer.dataValues.id,
                 courseId: offer.dataValues.courseId
             }))
@@ -96,5 +123,119 @@ router.post('/:id/enroll', auth, async (req, res) => {
         res.send()
     })
 })
+
+router.get('/:studentId/ranking', auth, async (req, res) => {
+    const studentId = req.params.studentId
+    let averagePromises = []
+    let averageArray = []
+    let average;
+
+    FindStudentById(studentId)
+        .then(student => {
+            CalculateStudentAverage(studentId)
+                .then(avg => { average = avg })
+            return student.getSchool()
+        })
+        .then(school => {
+            return school.getStudents()
+        })
+        .then(students => {
+            for (let i = 0; i < students.length; i++) {
+                const el = students[i];
+                averagePromises.push(CalculateStudentAverage(el.id).then(average => {
+                    averageArray.push(average)
+                }))
+            }
+
+            Promise.all(averagePromises)
+                .then(() => {
+                    // let uniqueAverages = [...new Set(averageArray)]
+                    // let sorted = QuickSort(uniqueAverages)
+                    let sorted = QuickSort(averageArray)
+                    let reversed = sorted.reverse();
+                    let rank = reversed.indexOf(average)
+                    console.log(reversed);
+
+                    res.send({ rank: rank + 1, size: reversed.length })
+                })
+        })
+})
+
+router.get('/:studentId/assignments/ratio', auth, async (req, res) => {
+    const studentId = req.params.studentId
+    FindStudentById(studentId)
+        .then(student => {
+            return student.getAssignments()
+        })
+        .then(assignments => {
+            let filtered = assignments.filter(el => el.createdAt.toString() != el.updatedAt.toString())
+
+            res.send({
+                all: assignments.length,
+                completed: filtered.length
+            })
+        })
+})
+
+async function CalculateStudentAverage(studentId) {
+    let sum = 0;
+
+    const student = await FindStudentById(studentId)
+    const filtered = await GetAssignments(student)
+
+    if (filtered.length == 0) {
+        return 0
+    }
+
+    let reviewedCount = filtered.length
+
+    for (let i = 0; i < reviewedCount; i++) {
+        const el = filtered[i].mark;
+
+        sum += el;
+    }
+
+    let average = sum / reviewedCount
+
+    return average;
+}
+
+async function GetAssignments(student) {
+    let filtered = []
+    const assignments = await student.getAssignments()
+    filtered = assignments.filter(el => el.isReviewed == true)
+    return filtered;
+}
+
+async function FindStudentById(studentId) {
+    return Student.findOne({
+        where: {
+            id: studentId
+        }
+    })
+}
+
+function QuickSort(origArray) {
+    if (origArray.length <= 1) {
+        return origArray;
+    } else {
+
+        var left = [];
+        var right = [];
+        var newArray = [];
+        var pivot = origArray.pop();
+        var length = origArray.length;
+
+        for (var i = 0; i < length; i++) {
+            if (origArray[i] <= pivot) {
+                left.push(origArray[i]);
+            } else {
+                right.push(origArray[i]);
+            }
+        }
+
+        return newArray.concat(QuickSort(left), pivot, QuickSort(right));
+    }
+}
 
 module.exports = router;

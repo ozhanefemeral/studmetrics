@@ -17,6 +17,11 @@ async function createDummy() {
         schoolId: 1
     })
 
+    await Student.create({
+        name: "Mehmet Öztürk",
+        schoolId: 1
+    })
+
     await Course.create({
         name: "Data Structures",
         schoolId: 1
@@ -34,6 +39,12 @@ async function createDummy() {
         offerId: 1
     })
 
+    await Enrolled.create({
+        courseId: 1,
+        studentId: 2,
+        offerId: 1
+    })
+
     await Homework.create({
         "name": "Homework 1",
         "questions": [
@@ -41,7 +52,8 @@ async function createDummy() {
                 "text": "What is Big O Notation?",
                 "answerType": "Klasik",
                 "choices": [],
-                "point": 0
+                "point": 50,
+                "answer": null
             },
             {
                 "text": "Which one is more efficient?",
@@ -64,7 +76,36 @@ async function createDummy() {
     await Assignment.create({
         homeworkId: 1,
         studentId: 1,
+        enrolledId: 1,
         mark: 50,
-        answers: ["It is used to express an algorithm's efficiency", 1]
+        answers: [{
+            value: "It is used to express an algorithm's efficiency",
+            point: 0
+        }, {
+            value: 1,
+            point: 50
+        }],
+        isCorrect: [
+            null,
+            true
+        ],
+    })
+
+    await Assignment.create({
+        homeworkId: 1,
+        studentId: 2,
+        enrolledId: 2,
+        mark: 0,
+        answers: [{
+            value: "bla bla bla",
+            point: 0
+        }, {
+            value: 0,
+            point: 0
+        }],
+        isCorrect: [
+            null,
+            false
+        ],
     })
 }

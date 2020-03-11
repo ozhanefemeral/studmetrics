@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Offer = sequelize.define('Offer', {
-    semester: DataTypes.STRING
+    semester: DataTypes.STRING,
   }, {});
   Offer.associate = function (models) {
     Offer.hasMany(models.Enrolled, {

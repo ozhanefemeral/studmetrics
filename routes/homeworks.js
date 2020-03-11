@@ -51,6 +51,37 @@ router.get('/:homeworkId', auth, async (req, res) => {
         .then(homework => res.send(homework))
 })
 
+router.get('/:homeworkId/average', auth, async (req, res) => {
+    let sum = 0
+    
+    Homework.findOne({
+        where: {
+            id: req.params.homeworkId
+        }
+    })
+        .then(homework => {
+            return homework.getAssignments()
+        }).then(assignments => {
+            let filtered = assignments.filter(el => el.isReviewed)
+            const length = filtered.length
+
+            if(length == 0){
+                res.send({average: 0})
+                return 
+            }
+            
+            for (let i = 0; i < length; i++) {
+                const el = filtered[i];
+                if(!el) continue
+                sum += el.mark
+            }
+
+            let average = sum / length
+            
+            res.send({average: average})
+        })
+})
+
 router.delete('/:homeworkId', auth, async (req, res) => {
     Homework.destroy({
         where: {

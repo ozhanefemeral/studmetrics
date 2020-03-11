@@ -7,7 +7,6 @@ module.exports = (sequelize, DataTypes) => {
         len: [3, 40]
       }
     },
-
     questions: DataTypes.ARRAY(DataTypes.JSON)
   }, {});
   Homework.associate = function (models) {

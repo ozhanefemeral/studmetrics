@@ -1,8 +1,9 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const axios = require('axios');
+const router = express.Router();
 
-const { Offer, Enrolled, Student } = require('../models/index')
-const auth = require('../middleware/auth')
+const { Offer, Enrolled, Student, Homework } = require('../models/index');
+const auth = require('../middleware/auth');
 
 router.post('/', auth, async (req, res) => {
     Offer.create(req.body)
@@ -13,7 +14,7 @@ router.post('/', auth, async (req, res) => {
             console.log(err);
             res.status(400).send()
         })
-})
+});
 
 router.get('/:offerId', auth, async (req, res) => {
     Offer.findOne({
@@ -41,7 +42,7 @@ router.get('/:offerId/homeworks', auth, async (req, res) => {
         console.log(err);
         res.status(400).send()
     })
-})
+});
 
 router.get('/:offerId/students', auth, async (req, res) => {
 
@@ -69,7 +70,7 @@ router.get('/:offerId/students', auth, async (req, res) => {
         console.log(err);
         res.status(400).send()
     })
-})
+});
 
 router.delete('/:offerId', auth, async (req, res) => {
     Offer.destroy({
@@ -89,7 +90,7 @@ router.delete('/:offerId/unenroll/', auth, async (req, res) => {
     enrolledPromises = []
 
     console.log(req.body);
-    
+
 
     for (let i = 0; i < students.length; i++) {
         const el = students[i];
@@ -109,6 +110,56 @@ router.delete('/:offerId/unenroll/', auth, async (req, res) => {
             console.log(err);
             res.status(400).send()
         })
+})
+
+router.get('/:offerId/average/', auth, async (req, res) => {
+    const offerId = req.params.offerId;
+    let sum = 0;
+    let homeworkAverages = []
+    let assignmentPromises = []
+
+    Offer.findOne({
+        where: {
+            id: offerId
+        }
+    }).then(offer => {
+        return offer.getHomeworks()
+    }).then(homeworks => {
+        for (let i = 0; i < homeworks.length; i++) {
+            const el = homeworks[i];
+            assignmentPromises.push(el.getAssignments()
+                .then(assignments => {
+
+                    let assignmentSum = 0;
+                    let filtered = assignments.filter(el => el.isReviewed == true)
+                    const length = filtered.length
+
+                    if (length == 0) {
+                        return
+                    }
+
+                    for (let i = 0; i < length; i++) {
+                        const el = filtered[i].mark;
+                        assignmentSum += el
+                    }
+
+                    homeworkAverages.push(assignmentSum / length)
+                }))
+        }
+
+        return Promise.all(assignmentPromises)
+
+    }).then(() => {
+        for (let i = 0; i < homeworkAverages.length; i++) {
+            const el = homeworkAverages[i];
+            if (!el) { continue }
+            sum += el
+        }
+        res.send({ average: sum / homeworkAverages.length })
+    }).catch(err => {
+        console.log(err);
+        res.sendStatus(400)
+    })
 })
 
 module.exports = router;

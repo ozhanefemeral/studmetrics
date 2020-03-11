@@ -5,6 +5,9 @@ const app = express()
 const bodyParser = require('body-parser')
 const port = process.env.PORT || 3000
 const db = require('./models/index')
+
+// db.sequelize.sync()
+
 db.sequelize.sync({ force: true }).then(() => {
     require('./createDummy')
 })

@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       validate: {
         len: [3, 40]
-      }
+      },
     }
   }, {});
   Teacher.associate = function (models) {
