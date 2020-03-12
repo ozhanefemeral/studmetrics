@@ -5,8 +5,6 @@ const { Assignment, Homework } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.get('/:assignmentId', auth, async (req, res) => {
-    console.log("request");
-
     Assignment.findOne({
         where: {
             id: req.params.assignmentId

@@ -21,6 +21,7 @@ router.post('/', auth, async (req, res) => {
                 assignmentPromises.push(Assignment.create({
                     homeworkId: homework.dataValues.id,
                     studentId: el.studentId,
+                    enrolledId: el.id,
                     mark: 0
                 }))
             }

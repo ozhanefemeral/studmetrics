@@ -76,6 +76,8 @@ router.get('/:studentId/average/:enrolledId', auth, async (req, res) => {
             id: enrolledId
         }
     }).then(enrolled => {
+        console.log(enrolled);
+        
         return enrolled.getAssignments()
     }).then(assignments => {
         let filtered = assignments.filter(el => el.isReviewed == true)

@@ -89,9 +89,6 @@ router.delete('/:offerId/unenroll/', auth, async (req, res) => {
     students = req.body
     enrolledPromises = []
 
-    console.log(req.body);
-
-
     for (let i = 0; i < students.length; i++) {
         const el = students[i];
         enrolledPromises.push(Enrolled.destroy({
