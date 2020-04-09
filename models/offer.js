@@ -2,20 +2,23 @@
 module.exports = (sequelize, DataTypes) => {
   const Offer = sequelize.define('Offer', {
     semester: DataTypes.STRING,
+    code: {
+      type: DataTypes.STRING,
+      required: true
+    }
   }, {});
   Offer.associate = function (models) {
     Offer.hasMany(models.Enrolled, {
-      foreignKey: 'offerId'
+      foreignKey: "offerId"
     })
     Offer.hasMany(models.Homework, {
-      foreignKey: 'offerId',
-      as: 'homeworks'
+      foreignKey: "offerId"
     })
     Offer.belongsTo(models.Course, {
-      foreignKey: 'courseId'
+      foreignKey: "courseId"
     })
     Offer.belongsTo(models.Teacher, {
-      foreignKey: 'teacherId'
+      foreignKey: "teacherId"
     })
   };
   return Offer;

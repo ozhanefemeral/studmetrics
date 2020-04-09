@@ -1,5 +1,4 @@
 const express = require('express');
-const axios = require('axios');
 const router = express.Router();
 
 const { Offer, Enrolled, Student, Homework } = require('../models/index');
@@ -30,12 +29,10 @@ router.get('/:offerId', auth, async (req, res) => {
 })
 
 router.get('/:offerId/homeworks', auth, async (req, res) => {
-    Offer.findOne({
+    Homework.findAll({
         where: {
-            id: req.params.offerId
+            offerId: req.params.offerId
         }
-    }).then(offer => {
-        return offer.getHomeworks()
     }).then(homeworks => {
         res.send(homeworks)
     }).catch(err => {

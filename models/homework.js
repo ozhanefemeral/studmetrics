@@ -7,15 +7,15 @@ module.exports = (sequelize, DataTypes) => {
         len: [3, 40]
       }
     },
-    questions: DataTypes.ARRAY(DataTypes.JSON)
+    questions: DataTypes.ARRAY(DataTypes.JSON),
+    average: DataTypes.FLOAT
   }, {});
   Homework.associate = function (models) {
     Homework.belongsTo(models.Offer, {
-      foreignKey: 'offerId',
-      as: 'offer'
+      foreignKey: "offerId"
     })
     Homework.hasMany(models.Assignment, {
-      foreignKey: 'homeworkId'
+      foreignKey: "homeworkId"
     })
   };
   return Homework;

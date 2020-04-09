@@ -18,7 +18,6 @@ router.get('/:assignmentId', auth, async (req, res) => {
 })
 
 router.patch('/', auth, async (req, res) => {
-
     req.body.mark = 0;
     req.body.isCorrect = []
 
@@ -35,10 +34,11 @@ router.patch('/', auth, async (req, res) => {
         const question = homework.dataValues.questions[i];
         if (question.answer != undefined) {
             if (req.body.answers[i].value == question.answer) {
-                req.body.mark += question.point
+                req.body.mark += parseInt(question.point)
                 req.body.answers[i].point = question.point;
                 req.body.isCorrect.push(true)
             } else {
+                req.body.answers[i].point = 0;
                 req.body.isCorrect.push(false)
             }
         } else {
@@ -52,30 +52,33 @@ router.patch('/', auth, async (req, res) => {
 })
 
 router.patch('/review', auth, async (req, res) => {
+    try {
+        req.body.mark = 0
+        req.body.isReviewed = true
 
-    req.body.mark = 0
-    req.body.isReviewed = true
+        const assignment = await Assignment.findOne({
+            where: {
+                studentId: req.query.studentId,
+                homeworkId: req.query.homeworkId,
+            }
+        })
 
-    const assignment = await Assignment.findOne({
-        where: {
-            studentId: req.query.studentId,
-            homeworkId: req.query.homeworkId,
+        for (let i = 0; i < req.body.answers.length; i++) {
+            const el = req.body.answers[i];
+            if (el.point > 0) {
+                req.body.isCorrect[i] = true
+            } else {
+                el.point = 0;
+                req.body.isCorrect[i] = false
+            }
+            req.body.mark += el.point
         }
-    })
 
-    for (let i = 0; i < req.body.answers.length; i++) {
-        const el = req.body.answers[i];
-        if (el.point > 0) {
-            req.body.isCorrect[i] = true
-        } else {
-            req.body.isCorrect[i] = false
-        }
-        req.body.mark += el.point
+        await assignment.update(req.body)
+        res.send(assignment)
+    } catch (error) {
+        res.send(error)
     }
-
-    await assignment.update(req.body)
-    // await updateHomeworkAverage(req.query.homeworkId)
-    res.send(assignment)
 })
 
 module.exports = router;

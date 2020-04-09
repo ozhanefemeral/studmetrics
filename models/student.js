@@ -10,13 +10,13 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Student.associate = function (models) {
     Student.belongsTo(models.School, {
-      foreignKey: 'schoolId'
+      foreignKey: "schoolId"
     })
     Student.hasMany(models.Assignment, {
-      foreignKey: 'studentId'
+      foreignKey: "studentId"
     })
     Student.hasMany(models.Enrolled, {
-      foreignKey: 'studentId'
+      foreignKey: "studentId"
     })
   };
   return Student;

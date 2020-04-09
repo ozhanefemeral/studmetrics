@@ -39,19 +39,15 @@ router.delete('/:studentId', auth, async (req, res) => {
 })
 
 router.get('/:studentId/enrolleds', auth, async (req, res) => {
-    Student.findOne({
-        where: {
-            id: req.params.studentId
-        }
-    }).then(student => {
-        console.log(student);
-        return student.getEnrolleds()
-    }).then(enrolleds => {
-        res.send(enrolleds)
-    }).catch(err => {
-        console.log(err);
-        res.status(400).send()
-    })
+    FindStudentById(req.params.studentId)
+        .then(student => {
+            return student.getEnrolleds()
+        }).then(enrolleds => {
+            res.send(enrolleds)
+        }).catch(err => {
+            console.log(err);
+            res.status(400).send()
+        })
 })
 
 router.get('/:studentId/average/all', auth, async (req, res) => {
@@ -76,8 +72,6 @@ router.get('/:studentId/average/:enrolledId', auth, async (req, res) => {
             id: enrolledId
         }
     }).then(enrolled => {
-        console.log(enrolled);
-        
         return enrolled.getAssignments()
     }).then(assignments => {
         let filtered = assignments.filter(el => el.isReviewed == true)
@@ -106,7 +100,6 @@ router.post('/:studentId/enroll', auth, async (req, res) => {
 
     for (let i = 0; i < req.body.offerIds.length; i++) {
         const el = req.body.offerIds[i];
-        console.log(el);
 
         Offer.findOne({
             where: {
@@ -156,7 +149,6 @@ router.get('/:studentId/ranking', auth, async (req, res) => {
                     let sorted = QuickSort(averageArray)
                     let reversed = sorted.reverse();
                     let rank = reversed.indexOf(average)
-                    console.log(reversed);
 
                     res.send({ rank: rank + 1, size: reversed.length })
                 })
@@ -176,6 +168,29 @@ router.get('/:studentId/assignments/ratio', auth, async (req, res) => {
                 all: assignments.length,
                 completed: filtered.length
             })
+        })
+})
+
+router.get('/:studentId/assignments/marks', auth, async (req, res) => {
+    const studentId = req.params.studentId
+    let marks = []
+
+    FindStudentById(studentId)
+        .then(student => {
+            return student.getAssignments()
+        })
+        .then(assignments => {
+            let filtered = assignments.filter(el => el.createdAt.toString() != el.updatedAt.toString())
+            for (let i = 0; i < filtered.length; i++) {
+                const el = filtered[i];
+                marks.push({
+                    mark: el.mark,
+                    homeworkId: el.homeworkId,
+                    offerId: el.offerId
+                })
+            }
+
+            res.send(marks)
         })
 })
 

@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Assignment.associate = function (models) {
     Assignment.belongsTo(models.Homework, {
-      foreignKey: 'homeworkId'
+      foreignKey: "homeworkId"
     })
     Assignment.belongsTo(models.Student, {
-      foreignKey: 'studentId'
+      foreignKey: "studentId"
     })
     Assignment.belongsTo(models.Enrolled, {
-      foreignKey: 'enrolledId'
+      foreignKey: "enrolledId"
     })
   };
   return Assignment;

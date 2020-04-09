@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { School } = require('../models/index')
+const { School, Homework } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', async (req, res) => {
@@ -15,10 +15,10 @@ router.post('/', async (req, res) => {
         })
 })
 
-router.get('/:id', auth, async (req, res) => {
+router.get('/:schoolId', auth, async (req, res) => {
     School.findOne({
         where: {
-            id: req.params.id
+            id: req.params.schoolId
         }
     }).then(school => {
         res.send(school)
@@ -28,10 +28,10 @@ router.get('/:id', auth, async (req, res) => {
     })
 })
 
-router.get('/:id/courses', auth, async (req, res) => {
+router.get('/:schoolId/courses', auth, async (req, res) => {
     School.findOne({
         where: {
-            id: req.params.id
+            id: req.params.schoolId
         }
     }).then(school => {
         return school.getCourses()
@@ -43,10 +43,10 @@ router.get('/:id/courses', auth, async (req, res) => {
     })
 })
 
-router.get('/:id/teachers', auth, async (req, res) => {
+router.get('/:schoolId/teachers', auth, async (req, res) => {
     School.findOne({
         where: {
-            id: req.params.id
+            id: req.params.schoolId
         }
     }).then(school => {
         return school.getTeachers()
@@ -58,10 +58,10 @@ router.get('/:id/teachers', auth, async (req, res) => {
     })
 })
 
-router.get('/:id/students', auth, async (req, res) => {
+router.get('/:schoolId/students', auth, async (req, res) => {
     School.findOne({
         where: {
-            id: req.params.id
+            id: req.params.schoolId
         }
     }).then(school => {
         return school.getStudents()
@@ -73,10 +73,44 @@ router.get('/:id/students', auth, async (req, res) => {
     })
 })
 
-router.get('/:id/offers', auth, async (req, res) => {
+router.get('/:schoolId/homeworks', auth, async (req, res) => {
+    let offerPromises = []
+    let homeworkPromises = []
     School.findOne({
         where: {
-            id: req.params.id
+            id: req.params.schoolId
+        }
+    }).then(school => {
+        return school.getCourses()
+    }).then(courses => {
+        for (let i = 0; i < courses.length; i++) {
+            const el = courses[i];
+            offerPromises.push(el.getOffers())
+        }
+
+        return Promise.all(offerPromises)
+    }).then(offers => {
+        let merged = [].concat(...offers)
+        for (let i = 0; i < merged.length; i++) {
+            const el = merged[i]
+            homeworkPromises.push(el.getHomework())
+        }
+
+        return Promise.all(homeworkPromises)
+    }).then(homeworks => {
+        let merged = [].concat(...homeworks)
+        res.send(merged)
+    })
+        .catch(err => {
+            console.log(err);
+            res.status(400).send()
+        })
+})
+
+router.get('/:schoolId/offers', auth, async (req, res) => {
+    School.findOne({
+        where: {
+            id: req.params.schoolId
         }
     }).then(school => {
         return school.getCourses()
@@ -96,6 +130,67 @@ router.get('/:id/offers', auth, async (req, res) => {
         console.log(err);
         res.status(400).send()
     })
+})
+
+router.get('/:schoolId/homeworks/average', auth, async (req, res) => {
+    const school = await School.findOne({
+        where: {
+            id: req.params.schoolId
+        }
+    })
+
+    let homeworkPromises = []
+    let offerPromises = []
+
+    const courses = await school.getCourses()
+    let allOffers = []
+
+    for (let i = 0; i < courses.length; i++) {
+        const currentCourse = courses[i];
+        offerPromises.push(currentCourse.getOffers())
+    }
+
+    Promise.all(offerPromises)
+        .then(data => {
+            allOffers = data;
+        })
+        .then(() => {
+            for (let i = 0; i < allOffers.length; i++) {
+                for (let j = 0; j < allOffers[i].length; j++) {
+                    homeworkPromises.push(Homework.findAll({
+                        where: {
+                            offerId: allOffers[i][j].id
+                        }
+                    }))
+                }
+            }
+
+            Promise.all(homeworkPromises)
+                .then(data => {
+                    let sum = 0
+                    let homeworkCount = 0;
+
+                    let filtered = data.filter(el => el.length > 0)
+                    for (let i = 0; i < filtered.length; i++) {
+                        for (let j = 0; j < filtered[i].length; j++) {
+                            homeworkCount++
+                            let currentAverage = filtered[i][j].average
+                            if (currentAverage > 0 || currentAverage < 100) {
+                                sum += currentAverage
+                            }
+                        }
+                    }
+
+                    if (homeworkCount == 0) {
+                        res.send({ average: 0 })
+                    } else {
+                        let average = sum / homeworkCount
+
+                        res.send({ average, homeworkCount })
+                    }
+                })
+        })
+
 })
 
 module.exports = router;

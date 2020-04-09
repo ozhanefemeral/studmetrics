@@ -5,16 +5,13 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Enrolled.associate = function (models) {
     Enrolled.belongsTo(models.Student, {
-      foreignKey: 'studentId'
+      foreignKey: "studentId"
     })
     Enrolled.belongsTo(models.Offer, {
-      foreignKey: 'offerId'
-    })
-    Enrolled.belongsTo(models.Course, {
-      foreignKey: 'courseId'
+      foreignKey: "offerId"
     })
     Enrolled.hasMany(models.Assignment, {
-      foreignKey: 'enrolledId'
+      foreignKey: "enrolledId"
     })
   };
   return Enrolled;
