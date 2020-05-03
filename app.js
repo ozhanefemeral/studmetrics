@@ -2,9 +2,9 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const bodyParser = require('body-parser')
-const port = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000
 const { sequelize } = require('./models/index')
-const { ApolloServer } = require('apollo-server');
+const { ApolloServer } = require('apollo-server-express');
 const typeDefs = require('./graphql/typedefs')
 const resolvers = require('./graphql/resolvers')
 
@@ -33,13 +33,10 @@ app.use('/api/test', testRoute)
 
 app.use(express.static(__dirname + '/public/'));
 
-app.listen(port, async () => {
-    console.log(`Server is ready @ port:${port}`);
-})
-
 const apolloServer = new ApolloServer({ typeDefs, resolvers });
+apolloServer.applyMiddleware({ app });
 
-// The `listen` method launches a web server.
-apolloServer.listen().then(({ url }) => {
-    console.log(`🚀  Server ready at ${url}`);
-});
+
+app.listen(PORT, () =>
+    console.log(`Server ready at http://localhost:${PORT}${apolloServer.graphqlPath}`)
+)
