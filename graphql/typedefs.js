@@ -45,6 +45,7 @@ type Homework{
 }
 
 type Assignment{
+    id: ID!,
     homework: Homework!,
     mark: Float,
     isReviewed: Boolean

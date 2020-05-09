@@ -17,16 +17,18 @@ router.get('/:assignmentId', auth, async (req, res) => {
     })
 })
 
-router.patch('/', auth, async (req, res) => {
+router.patch('/:assignmentId', auth, async (req, res) => {
+
     req.body.mark = 0;
-    req.body.isCorrect = []
+    req.body.isCorrect = [];
 
     const assignment = await Assignment.findOne({
         where: {
-            studentId: req.query.studentId,
-            homeworkId: req.query.homeworkId,
+            id: req.params.assignmentId
         }
-    })
+    });
+
+    console.log(assignment);
 
     const homework = await assignment.getHomework()
 
@@ -51,17 +53,58 @@ router.patch('/', auth, async (req, res) => {
     res.send(assignment)
 })
 
-router.patch('/review', auth, async (req, res) => {
+// router.patch('/', auth, async (req, res) => {
+//     req.body.mark = 0;
+//     req.body.isCorrect = []
+
+//     const assignment = await Assignment.findOne({
+//         where: {
+//             studentId: req.query.studentId,
+//             homeworkId: req.query.homeworkId,
+//         }
+//     })
+
+//     const homework = await assignment.getHomework()
+
+//     for (let i = 0; i < homework.dataValues.questions.length; i++) {
+//         const question = homework.dataValues.questions[i];
+//         if (question.answer != undefined) {
+//             if (req.body.answers[i].value == question.answer) {
+//                 req.body.mark += parseInt(question.point)
+//                 req.body.answers[i].point = question.point;
+//                 req.body.isCorrect.push(true)
+//             } else {
+//                 req.body.answers[i].point = 0;
+//                 req.body.isCorrect.push(false)
+//             }
+//         } else {
+//             req.body.answers[i].point = 0;
+//             req.body.isCorrect.push(null)
+//         }
+//     }
+
+//     await assignment.update(req.body)
+//     res.send(assignment)
+// })
+
+router.patch('/review/:assignmentId', auth, async (req, res) => {
     try {
         req.body.mark = 0
         req.body.isReviewed = true
 
+        console.log("assignmentId");
+        console.log(req.params.assignmentId);
+        console.log("**********************");
+
         const assignment = await Assignment.findOne({
             where: {
-                studentId: req.query.studentId,
-                homeworkId: req.query.homeworkId,
+                id: req.params.assignmentId
             }
         })
+
+        console.log(req.body);
+        console.log("**********************");
+        console.log(assignment);
 
         for (let i = 0; i < req.body.answers.length; i++) {
             const el = req.body.answers[i];
