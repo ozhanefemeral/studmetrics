@@ -21,6 +21,7 @@ router.patch('/:assignmentId', auth, async (req, res) => {
 
     req.body.mark = 0;
     req.body.isCorrect = [];
+    req.body.isReviewed = false;
 
     const assignment = await Assignment.findOne({
         where: {
@@ -52,40 +53,6 @@ router.patch('/:assignmentId', auth, async (req, res) => {
     await assignment.update(req.body)
     res.send(assignment)
 })
-
-// router.patch('/', auth, async (req, res) => {
-//     req.body.mark = 0;
-//     req.body.isCorrect = []
-
-//     const assignment = await Assignment.findOne({
-//         where: {
-//             studentId: req.query.studentId,
-//             homeworkId: req.query.homeworkId,
-//         }
-//     })
-
-//     const homework = await assignment.getHomework()
-
-//     for (let i = 0; i < homework.dataValues.questions.length; i++) {
-//         const question = homework.dataValues.questions[i];
-//         if (question.answer != undefined) {
-//             if (req.body.answers[i].value == question.answer) {
-//                 req.body.mark += parseInt(question.point)
-//                 req.body.answers[i].point = question.point;
-//                 req.body.isCorrect.push(true)
-//             } else {
-//                 req.body.answers[i].point = 0;
-//                 req.body.isCorrect.push(false)
-//             }
-//         } else {
-//             req.body.answers[i].point = 0;
-//             req.body.isCorrect.push(null)
-//         }
-//     }
-
-//     await assignment.update(req.body)
-//     res.send(assignment)
-// })
 
 router.patch('/review/:assignmentId', auth, async (req, res) => {
     try {
