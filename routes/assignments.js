@@ -92,19 +92,11 @@ router.patch('/review/:assignmentId', auth, async (req, res) => {
         req.body.mark = 0
         req.body.isReviewed = true
 
-        console.log("assignmentId");
-        console.log(req.params.assignmentId);
-        console.log("**********************");
-
         const assignment = await Assignment.findOne({
             where: {
                 id: req.params.assignmentId
             }
         })
-
-        console.log(req.body);
-        console.log("**********************");
-        console.log(assignment);
 
         for (let i = 0; i < req.body.answers.length; i++) {
             const el = req.body.answers[i];
