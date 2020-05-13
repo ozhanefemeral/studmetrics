@@ -42,11 +42,13 @@ type Homework{
     name: String
     id: ID!
     offerId: ID!
+    lockAfterAnswering: Boolean
 }
 
 type Assignment{
     id: ID!,
     homework: Homework!,
+    isAnswered: Boolean,
     mark: Float,
     isReviewed: Boolean
 }

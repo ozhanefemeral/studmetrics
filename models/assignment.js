@@ -4,6 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     mark: DataTypes.INTEGER,
     answers: DataTypes.ARRAY(DataTypes.JSON),
     isCorrect: DataTypes.ARRAY(DataTypes.BOOLEAN),
+    points: { type: DataTypes.ARRAY(DataTypes.FLOAT), defaultValue: [].fill(0) },
+    isAnswered: { type: DataTypes.BOOLEAN, defaultValue: false },
     isReviewed: { type: DataTypes.BOOLEAN, defaultValue: false }
   }, {});
   Assignment.associate = function (models) {

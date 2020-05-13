@@ -29,25 +29,27 @@ router.patch('/:assignmentId', auth, async (req, res) => {
         }
     });
 
-    console.log(assignment);
-
     const homework = await assignment.getHomework()
 
     for (let i = 0; i < homework.dataValues.questions.length; i++) {
         const question = homework.dataValues.questions[i];
         if (question.answer != undefined) {
-            if (req.body.answers[i].value == question.answer) {
+            if (req.body.answers[i] == question.answer) {
                 req.body.mark += parseInt(question.point)
-                req.body.answers[i].point = question.point;
+                assignment.points[i] = question.point;
                 req.body.isCorrect.push(true)
             } else {
-                req.body.answers[i].point = 0;
+                assignment.points[i] = 0;
                 req.body.isCorrect.push(false)
             }
         } else {
             req.body.answers[i].point = 0;
             req.body.isCorrect.push(null)
         }
+    }
+
+    if (homework.lockAfterAnswering) {
+        req.body.isAnswered = true;
     }
 
     await assignment.update(req.body)
