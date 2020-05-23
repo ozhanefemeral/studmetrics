@@ -2,7 +2,9 @@ const { gql } = require('apollo-server');
 
 const typedefs = gql`
 type Student{
-    name: String
+    firstName: String
+    middleName: String
+    lastName: String
     id: ID!
     assignments: [Assignment]
     enrolleds: [Enrolled]
@@ -17,7 +19,9 @@ type Ratio{
 }
 
 type Teacher{
-    name: String
+    firstName: String
+    middleName: String
+    lastName: String
     offers: [Offer]
 }
 
@@ -36,6 +40,13 @@ type Enrolled{
     student: Student
     offer: Offer
     assignments: [Assignment]
+    marks: [Mark]
+}
+
+type Mark{
+    percentage: Int!,
+    name: String!,
+    points: Float!
 }
 
 type Homework{
@@ -50,7 +61,8 @@ type Assignment{
     homework: Homework!,
     isAnswered: Boolean,
     mark: Float,
-    isReviewed: Boolean
+    isReviewed: Boolean,
+    answers: [Int]
 }
 
 type Query {

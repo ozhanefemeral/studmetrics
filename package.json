@@ -15,16 +15,20 @@
   "dependencies": {
     "apollo-server": "^2.11.0",
     "apollo-server-express": "^2.12.0",
+    "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "connect-history-api-fallback": "^1.6.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "faker": "^4.1.0",
     "graphql": "^14.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
     "nodemon": "^2.0.2",
     "pg": "^7.18.2",
     "pg-hstore": "^2.3.3",
-    "sequelize": "^5.21.5"
+    "sequelize": "^5.21.5",
+    "shortid": "^2.2.15"
   },
   "engines": {
     "node": "12.16.1",

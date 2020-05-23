@@ -5,6 +5,10 @@ module.exports = (sequelize, DataTypes) => {
     code: {
       type: DataTypes.STRING,
       required: true
+    },
+    files: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      default: ""
     }
   }, {});
   Offer.associate = function (models) {

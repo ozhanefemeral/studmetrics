@@ -30,16 +30,17 @@ router.patch('/:assignmentId', auth, async (req, res) => {
     });
 
     const homework = await assignment.getHomework()
+    req.body.points = new Array(homework.questions.length)
 
     for (let i = 0; i < homework.dataValues.questions.length; i++) {
         const question = homework.dataValues.questions[i];
         if (question.answer != undefined) {
             if (req.body.answers[i] == question.answer) {
                 req.body.mark += parseInt(question.point)
-                assignment.points[i] = question.point;
+                req.body.points[i] = question.point;
                 req.body.isCorrect.push(true)
             } else {
-                assignment.points[i] = 0;
+                req.body.points[i] = 0;
                 req.body.isCorrect.push(false)
             }
         } else {
@@ -48,41 +49,36 @@ router.patch('/:assignmentId', auth, async (req, res) => {
         }
     }
 
-    if (homework.lockAfterAnswering) {
-        req.body.isAnswered = true;
-    }
+    req.body.isAnswered = true;
 
     await assignment.update(req.body)
     res.send(assignment)
 })
 
 router.patch('/review/:assignmentId', auth, async (req, res) => {
-    try {
-        req.body.mark = 0
-        req.body.isReviewed = true
+    req.body.mark = 0
 
-        const assignment = await Assignment.findOne({
-            where: {
-                id: req.params.assignmentId
-            }
-        })
-
-        for (let i = 0; i < req.body.answers.length; i++) {
-            const el = req.body.answers[i];
-            if (el.point > 0) {
-                req.body.isCorrect[i] = true
-            } else {
-                el.point = 0;
-                req.body.isCorrect[i] = false
-            }
-            req.body.mark += el.point
+    const assignment = await Assignment.findOne({
+        where: {
+            id: req.params.assignmentId
         }
+    })
 
-        await assignment.update(req.body)
-        res.send(assignment)
-    } catch (error) {
-        res.send(error)
+    for (let i = 0; i < req.body.answers.length; i++) {
+        if (assignment.points[i] > 0) {
+            req.body.isCorrect[i] = true
+        } else {
+            assignment.points[i] = 0;
+            req.body.isCorrect[i] = false
+        }
+        req.body.mark += assignment.points[i]
     }
+
+    req.body.isReviewed = true
+    console.log(req.body);
+
+    await assignment.update(req.body)
+    res.send(assignment)
 })
 
 module.exports = router;

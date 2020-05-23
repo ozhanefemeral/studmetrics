@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+var multer = require('multer')
+var upload = multer({ dest: 'uploads/' })
 
 const { Offer, Enrolled, Student, Homework } = require('../models/index');
 const auth = require('../middleware/auth');
@@ -82,7 +85,7 @@ router.delete('/:offerId', auth, async (req, res) => {
     })
 })
 
-router.delete('/:offerId/unenroll/', auth, async (req, res) => {
+router.delete('/:offerId/unenroll', auth, async (req, res) => {
     students = req.body
     enrolledPromises = []
 
@@ -106,7 +109,7 @@ router.delete('/:offerId/unenroll/', auth, async (req, res) => {
         })
 })
 
-router.get('/:offerId/average/', auth, async (req, res) => {
+router.get('/:offerId/average', auth, async (req, res) => {
     const offerId = req.params.offerId;
     let sum = 0;
     let homeworkAverages = []
@@ -154,6 +157,42 @@ router.get('/:offerId/average/', auth, async (req, res) => {
         console.log(err);
         res.sendStatus(400)
     })
+})
+
+router.post('/:offerId/upload', auth, upload.single('file'), async (req, res) => {
+    const offerId = req.params.offerId;
+    const offer = await Offer.findOne({
+        where: {
+            id: offerId
+        }
+    })
+
+    if (!offer.files) {
+        offer.files = new Array();
+    }
+
+    offer.files.push(req.file.filename);
+    await offer.update({ files: offer.files });
+
+    res.send(req.file);
+})
+
+router.get('/:offerId/uploads', auth, async (req, res) => {
+    const offerId = req.params.offerId;
+
+    const offer = await Offer.findOne({
+        where: {
+            id: offerId
+        }
+    })
+
+    res.send(offer)
+})
+
+router.get('/:offerId/uploads/:fileName', auth, async (req, res) => {
+    const fileName = req.params.fileName
+
+    res.sendFile(path.join(__dirname, '..', 'uploads', fileName))
 })
 
 module.exports = router;

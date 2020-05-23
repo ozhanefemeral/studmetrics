@@ -16,7 +16,8 @@ router.post('/students', auth, async (req, res) => {
 
     for (let index = 0; index < 10; index++) {
         const student = {
-            name: faker.name.firstName() + " " + faker.name.lastName(),
+            firstName: faker.name.firstName(),
+            lastName: faker.name.lastName(),
             schoolId: req.body.schoolId
         }
 
