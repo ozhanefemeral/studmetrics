@@ -31,9 +31,6 @@ module.exports = (sequelize, DataTypes) => {
       required: true,
       type: DataTypes.DATEONLY
     },
-    createdAt: {
-      type: DataTypes.DATEONLY
-    },
     password: DataTypes.STRING,
     studentId: {
       type: DataTypes.STRING

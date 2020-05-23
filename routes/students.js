@@ -1,6 +1,8 @@
 const express = require('express')
 const router = express.Router()
-
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const { Student, Offer, Enrolled, Assignment } = require('../models/index')
 const auth = require('../middleware/auth')
 
@@ -13,6 +15,34 @@ router.post('/', auth, async (req, res) => {
             console.log(err);
             res.status(400).send()
         })
+})
+
+router.post('/login', async (req, res) => {
+    const studentId = req.body.studentId;
+    const password = req.body.password;
+
+    const student = await Student.findOne({
+        where: {
+            studentId
+        }
+    }).catch(err => {
+        res.send(err);
+    })
+
+    console.log(student.password);
+    console.log(password);
+
+    const success = await bcrypt.compare(password, student.password);
+
+    if (success) {
+        const token = jwt.sign({ studentId }, 'studmetrics')
+        console.log(token);
+        res.send({ token });
+
+    } else {
+        res.send(400);
+    }
+
 })
 
 router.get('/:studentId', auth, async (req, res) => {
