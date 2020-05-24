@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
         res.send({ token });
 
     } else {
-        res.send(400);
+        res.sendStatus(400);
     }
 })
 

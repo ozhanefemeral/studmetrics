@@ -21,7 +21,6 @@ const resolvers = {
             return Offer.findAll()
         },
         student: (parent, args) => {
-            console.log(args.studentId);
             return Student.findOne({
                 where: {
                     id: args.studentId
