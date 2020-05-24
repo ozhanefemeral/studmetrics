@@ -20,6 +20,8 @@ router.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
+    console.log(req.body);
+
     const school = await School.findOne({
         where: {
             email
