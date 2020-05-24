@@ -3,17 +3,23 @@ const cors = require('cors')
 const app = express()
 const bodyParser = require('body-parser')
 const PORT = process.env.PORT || 3000
+
 const { sequelize } = require('./models/index')
 const { ApolloServer } = require('apollo-server-express');
 const typeDefs = require('./graphql/typedefs')
 const resolvers = require('./graphql/resolvers')
 
-sequelize.sync()
+if (process.env.NODE_ENV === "production") {
+    sequelize.sync({ force: true })
+} else {
+    sequelize.sync()
+}
+
 
 app.use(cors())
 app.use(bodyParser.json())
 
-app.use('/api/schools',  require('./routes/schools'))
+app.use('/api/schools', require('./routes/schools'))
 app.use('/api/teachers', require('./routes/teachers'))
 app.use('/api/courses', require('./routes/courses'))
 app.use('/api/offers', require('./routes/offers'))
