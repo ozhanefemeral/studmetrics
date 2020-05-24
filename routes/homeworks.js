@@ -9,8 +9,6 @@ router.post('/', auth, async (req, res) => {
     let homeworkId;
     let createdHomework;
 
-    console.log(req.body);
-
     if (!req.body.name) {
         req.body.name = faker.commerce.department()
     }

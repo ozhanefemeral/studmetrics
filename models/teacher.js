@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const Op = require('sequelize').Op;
 
 'use strict';
 module.exports = (sequelize, DataTypes) => {
@@ -28,18 +29,27 @@ module.exports = (sequelize, DataTypes) => {
       required: true,
       type: DataTypes.DATEONLY
     },
-    loginId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV1
+    teacherId: {
+      type: DataTypes.STRING
     },
     password: DataTypes.STRING,
   }, {});
 
-  Teacher.beforeCreate(async (user, options) => {
-    user.password = user.lastName.toLowerCase() + user.birthday;
-    const hashedPassword = await hashPassword(user.password);
-    user.password = hashedPassword;
-    console.log(user.password);
+  Teacher.beforeCreate(async (teacher, options) => {
+    teacher.password = teacher.lastName.toLowerCase() + teacher.birthday.substr(0, 4);
+    const hashedPassword = await hashPassword(teacher.password);
+    const currentDate = new Date();
+    const teachers = await Teacher.findAll({
+      where: {
+        createdAt: {
+          [Op.gt]: new Date(currentDate.getFullYear(), 1, 1)
+        },
+        schoolId: teacher.schoolId
+      }
+    });
+
+    teacher.teacherId = currentDate.getFullYear() + (teachers.length + 1).toString();
+    teacher.password = hashedPassword;
   });
 
   Teacher.associate = function (models) {

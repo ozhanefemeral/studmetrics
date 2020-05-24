@@ -75,7 +75,6 @@ router.patch('/review/:assignmentId', auth, async (req, res) => {
     }
 
     req.body.isReviewed = true
-    console.log(req.body);
 
     await assignment.update(req.body)
     res.send(assignment)

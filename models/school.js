@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
         len: [3, 40]
       }
     },
-    loginId: {
+    email: {
       type: DataTypes.STRING,
     },
     password: {

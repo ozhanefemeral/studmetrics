@@ -5,7 +5,7 @@ const router = express.Router()
 const { sequelize, Student, Teacher, Course, Offer, Enrolled } = require('../models/index');
 const auth = require('../middleware/auth');
 
-router.post('/restart', auth, async (req, res) => {
+router.post('/restart', async (req, res) => {
     sequelize.sync({ force: true }).then(() => {
         res.send();
     });
@@ -18,7 +18,9 @@ router.post('/students', auth, async (req, res) => {
         const student = {
             firstName: faker.name.firstName(),
             lastName: faker.name.lastName(),
-            schoolId: req.body.schoolId
+            schoolId: req.body.schoolId,
+            birthday: new Date().toISOString().substr(0, 10),
+            studentId: index
         }
 
         students.push(student)
