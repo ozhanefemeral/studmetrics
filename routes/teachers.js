@@ -17,14 +17,12 @@ router.post('/', auth, async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-    const teacherId = req.body.teacherId;
+    const id = req.body.teacherId;
     const password = req.body.password;
-
-    console.log(req.body);
 
     const teacher = await Teacher.findOne({
         where: {
-            teacherId
+            id
         }
     }).catch(err => {
         console.log(err);
@@ -34,7 +32,7 @@ router.post('/login', async (req, res) => {
     const success = await bcrypt.compare(password, teacher.password);
 
     if (success) {
-        const token = jwt.sign({ id: teacher.id }, 'studmetrics')
+        const token = jwt.sign({ id: teacher.id, loggedAs: "teacher" }, 'studmetrics')
         res.send({ token });
 
     } else {

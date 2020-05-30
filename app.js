@@ -5,16 +5,12 @@ const bodyParser = require('body-parser')
 const PORT = process.env.PORT || 3000
 
 const { sequelize } = require('./models/index')
-const { ApolloServer } = require('apollo-server-express');
-const typeDefs = require('./graphql/typedefs')
-const resolvers = require('./graphql/resolvers')
 
 if (process.env.NODE_ENV === "production") {
     sequelize.sync({ force: true })
 } else {
     sequelize.sync()
 }
-
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -28,13 +24,8 @@ app.use('/api/homeworks', require('./routes/homeworks'))
 app.use('/api/assignments', require('./routes/assignments'))
 app.use('/api/enrolleds', require('./routes/enrolleds'))
 app.use('/api/test', require('./routes/test'))
+app.use('/api/verify', require('./routes/verify'))
 
 app.use(express.static(__dirname + '/public/'));
 
-const apolloServer = new ApolloServer({ typeDefs, resolvers });
-apolloServer.applyMiddleware({ app });
-
-
-app.listen(PORT, () =>
-    console.log(`Server ready at http://localhost:${PORT}${apolloServer.graphqlPath}`)
-)
+app.listen(PORT)

@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     middleName: {
       type: DataTypes.STRING,
       validate: {
-        len: [2, 15],
+        len: [0, 15],
       }
     },
     lastName: {

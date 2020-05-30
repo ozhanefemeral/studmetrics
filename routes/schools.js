@@ -20,8 +20,6 @@ router.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
-    console.log(req.body);
-
     const school = await School.findOne({
         where: {
             email
@@ -34,7 +32,7 @@ router.post('/login', async (req, res) => {
     const success = await bcrypt.compare(password, school.password);
 
     if (success) {
-        const token = jwt.sign({ schoolId: school.id }, 'studmetrics')
+        const token = jwt.sign({ schoolId: school.id, loggedAs: "school" }, 'studmetrics')
         res.send({ token });
 
     } else {
