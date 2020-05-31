@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { Student, Offer, Enrolled } = require('../models/index')
+const { Student, Offer, Enrolled, Teacher, School } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
@@ -217,6 +217,50 @@ router.get('/:studentId/assignments/marks', auth, async (req, res) => {
 
             res.send(marks)
         })
+})
+
+router.get('/', auth, async (req, res) => {
+    console.log(req.body);
+    const id = req.body.id
+    if (req.body.loggedAs === 'teacher') {
+        let offerPromises = []
+        let enrolledPromises = []
+        const teacher = await Teacher.findOne({ where: { id } });
+        const offers = await teacher.getOffers();
+
+        offers.forEach(offer => {
+            offerPromises.push(offer.getEnrolleds());
+        });
+
+        Promise.all(offerPromises)
+            .then(enrolleds => {
+                let jointArray = [];
+
+                enrolleds.forEach(element => {
+                    jointArray = [...jointArray, ...element]
+                });
+
+                jointArray.forEach(enrolled => {
+                    enrolledPromises.push(enrolled.getStudent())
+                });
+                return Promise.all(enrolledPromises)
+            })
+            .then(students => {
+                res.send(students)
+            })
+    } else {
+        School.findOne({
+            where: {
+                id
+            }
+        })
+            .then(school => {
+                return school.getStudents();
+            })
+            .then(students => {
+                res.send(students)
+            })
+    }
 })
 
 async function CalculateStudentAverage(studentId) {

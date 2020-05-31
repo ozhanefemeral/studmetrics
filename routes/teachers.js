@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { Teacher } = require('../models/index');
+const { Teacher, Enrolled } = require('../models/index');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 
@@ -66,4 +66,43 @@ router.delete('/:id', auth, async (req, res) => {
     })
 })
 
+router.get('/:id/students', auth, async (req, res) => {
+    let offerPromises = [];
+    let enrolledPromises = [];
+
+    const id = req.params.id;
+    const teacher = await Teacher.findOne({ where: { id } });
+    const offers = await teacher.getOffers();
+
+    //Get all enrolleds; for each offer row
+    offers.forEach(offer => {
+        offerPromises.push(offer.getEnrolleds());
+    });
+
+    //When all enrolle
+    Promise.all(offerPromises)
+        .then(enrolleds => {
+            let jointArray = [];
+
+            enrolleds.forEach(element => {
+                jointArray = [...jointArray, ...element]
+            });
+
+            jointArray.forEach(enrolled => {
+                enrolledPromises.push(enrolled.getStudent())
+            });
+            return Promise.all(enrolledPromises)
+        })
+        .then(students => {
+            res.send(students)
+        })
+})
+
+router.get('/:id/offers', auth, async (req, res) => {
+    const id = req.params.id;
+    const teacher = await Teacher.findOne({ where: { id } });
+    const offers = await teacher.getOffers();
+
+    res.send(offers);
+})
 module.exports = router;

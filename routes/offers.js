@@ -4,7 +4,7 @@ const path = require('path');
 var multer = require('multer')
 var upload = multer({ dest: 'uploads/' })
 
-const { Offer, Enrolled, Student, Homework } = require('../models/index');
+const { Offer, Enrolled, Student, Homework, Teacher, School } = require('../models/index');
 const auth = require('../middleware/auth');
 
 router.post('/', auth, async (req, res) => {
@@ -193,6 +193,47 @@ router.get('/:offerId/uploads/:fileName', auth, async (req, res) => {
     const fileName = req.params.fileName
 
     res.sendFile(path.join(__dirname, '..', 'uploads', fileName))
+})
+
+router.get('/', auth, async (req, res) => {
+    const id = req.body.id
+    if (req.body.loggedAs === 'teacher') {
+        Teacher.findOne({
+            where: { id }
+        })
+            .then(teacher => {
+                return teacher.getOffers();
+            })
+            .then(offers => {
+                res.send(offers)
+            })
+    } else {
+        let coursePromises = [];
+        School.findOne({
+            where: {
+                id
+            }
+        })
+            .then(school => {
+                return school.getCourses();
+            })
+            .then(courses => {
+                courses.forEach(course => {
+                    coursePromises.push(course.getOffers())
+                });
+
+                return Promise.all(coursePromises);
+            })
+            .then(offers => {
+                let jointArray = [];
+
+                offers.forEach(offer => {
+                    jointArray = [...jointArray, ...offer]
+                });
+
+                res.send(jointArray);
+            })
+    }
 })
 
 module.exports = router;

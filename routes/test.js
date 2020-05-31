@@ -12,88 +12,77 @@ router.post('/restart', async (req, res) => {
 })
 
 router.post('/students', auth, async (req, res) => {
-    let students = []
+    let studentPromises = []
 
-    for (let index = 0; index < 10; index++) {
-        const student = {
+    for (let i = 0; i < 10; i++) {
+        studentPromises.push(Student.create({
             firstName: faker.name.firstName(),
             lastName: faker.name.lastName(),
             schoolId: req.body.schoolId,
             birthday: new Date().toISOString().substr(0, 10),
-            studentId: index
-        }
-
-        students.push(student)
+            studentId: i
+        }))
     }
 
-    Student.bulkCreate(students)
+    Promise.all(studentPromises)
         .then(students => {
             res.send(students)
-        })
-        .catch(err => {
-            console.log(err);
-            res.send(err)
         })
 })
 
 router.post('/teachers', auth, async (req, res) => {
-    let teachers = []
-
-    for (let index = 0; index < 1; index++) {
-        const teacher = {
-            name: faker.name.firstName() + " " + faker.name.lastName(),
-            schoolId: req.body.schoolId
-        }
-
-        teachers.push(teacher)
-    }
-
-    Teacher.bulkCreate(teachers)
-        .then(teachers => {
-            res.send(teachers)
-        })
-        .catch(err => {
-            console.log(err);
-            res.send(err)
+    Teacher.create({
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName(),
+        schoolId: req.body.schoolId,
+        birthday: new Date().toISOString().substr(0, 10)
+    })
+        .then(teacher => {
+            res.send(teacher)
         })
 })
 
-// router.post('/courses', auth, async (req, res) => {
-//     let enrollPromises = []
+router.post('/courses', auth, async (req, res) => {
+    let enrollPromises = []
 
-//     let allTeachers = await Teacher.findAll();
+    let allTeachers = await Teacher.findAll();
 
-//     const course = {
-//         name: faker.lorem.words(2),
-//         schoolId: req.body.schoolId
-//     }
+    const course = {
+        name: faker.lorem.words(2),
+        schoolId: req.body.schoolId
+    }
 
-//     Course.create(course)
-//     .then(course => {
-//         return Offer.create({
-//             semester: "Summer",
-//             teacherId: allTeachers[0].id,
-//             courseId: course.id
-//         })
-//     })
-//     .then(async offer => {
-//         const students = await Student.findAll();
-//         for (let i = 0; i < students.length; i++) {
-//             const el = students[i]
-//             enrolledPromises.push(Enrolled.create({
-//                 studentId: el.id,
-//                 offerId: offer.id
-//             }))          
-//         }
+    Course.create(course)
+        .then(course => {
+            return Offer.create({
+                semester: "Summer",
+                teacherId: allTeachers[0].id,
+                courseId: course.id
+            })
+        })
+        .then(async offer => {
+            let students = await Student.findAll();
+            return { offer, students }
+        })
+        .then((offer, students) => {
+            console.log(students);
 
-//         return Promise.all(enrollPromises)
-//     })
-//     .then(enrolleds => {
-//         res.send(enrolleds);
-//     })
-//     .catch(err => {
-//         res.send(err)
-//     })
-// })
+            for (let i = 0; i < students.length; i++) {
+                const el = students[i]
+                enrolledPromises.push(Enrolled.create({
+                    studentId: el.id,
+                    offerId: offer.id
+                }))
+            }
+
+            return Promise.all(enrollPromises)
+        })
+        .then(enrolleds => {
+            res.send(enrolleds);
+        })
+        .catch(err => {
+            res.send(err)
+        })
+})
 
 module.exports = router;

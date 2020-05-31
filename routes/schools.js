@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
     const success = await bcrypt.compare(password, school.password);
 
     if (success) {
-        const token = jwt.sign({ schoolId: school.id, loggedAs: "school" }, 'studmetrics')
+        const token = jwt.sign({ id: school.id, loggedAs: "school" }, 'studmetrics')
         res.send({ token });
 
     } else {
