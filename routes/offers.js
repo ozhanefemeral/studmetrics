@@ -8,7 +8,9 @@ const { Offer, Enrolled, Student, Homework, Teacher, School } = require('../mode
 const auth = require('../middleware/auth');
 
 router.post('/', auth, async (req, res) => {
-    Offer.create(req.body)
+    const { offerBody } = req.body
+
+    Offer.create(offerBody)
         .then(offer => {
             res.send(offer)
         })

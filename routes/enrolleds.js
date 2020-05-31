@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { Enrolled } = require('../models/index')
+const { Enrolled, Offer, Teacher, Course } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.get('/', auth, (req, res) => {
@@ -25,11 +25,30 @@ router.patch('/', auth, (req, res) => {
         });
 })
 
+router.get('/:enrolledId/assignments', auth, (req, res) => {
+    const id = req.params.enrolledId;
+
+    Enrolled.findOne({
+        where: {
+            id
+        },
+    }).then(enrolled => {
+        return enrolled.getAssignments()
+    }).then(assignments => {
+        res.send(assignments)
+    })
+})
+
 const findEnrolled = async function (studentId, offerId) {
     return Enrolled.findOne({
         where: {
             studentId,
             offerId
+        },
+        include: {
+            model: Offer,
+            attributes: [],
+            include: [{ model: Course, attributes: ['name', 'id'] }, { model: Teacher, attributes: ['firstName', 'middleName', 'lastName', 'id'] }]
         }
     })
 }

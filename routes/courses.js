@@ -5,7 +5,11 @@ const { Course } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
-    Course.create(req.body)
+    const { courseBody } = req.body;
+
+    courseBody.schoolId = req.body.id
+
+    Course.create(courseBody)
         .then(course => {
             res.send(course)
         })

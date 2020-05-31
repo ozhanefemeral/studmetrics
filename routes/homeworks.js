@@ -9,13 +9,18 @@ router.post('/', auth, async (req, res) => {
     let homeworkId;
     let createdHomework;
 
-    if (!req.body.name) {
-        req.body.name = faker.commerce.department()
+    const { homeworkBody } = req.body
+
+    console.log(req.body);
+
+
+    if (!homeworkBody.name) {
+        homeworkBody.name = faker.commerce.department()
     }
 
     let assignmentPromises = []
 
-    Homework.create(req.body).then(homework => {
+    Homework.create(homeworkBody).then(homework => {
         homeworkId = homework.id;
         createdHomework = homework;
 
@@ -33,7 +38,7 @@ router.post('/', auth, async (req, res) => {
                 enrolledId: el.id,
                 mark: 0
             }
-            
+
             assignmentPromises.push(Assignment.create(assignmentBody))
         }
 

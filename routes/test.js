@@ -34,7 +34,7 @@ router.post('/teachers', auth, async (req, res) => {
     Teacher.create({
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
-        schoolId: req.body.schoolId,
+        schoolId: req.body.id,
         birthday: new Date().toISOString().substr(0, 10)
     })
         .then(teacher => {

@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { Student, Offer, Enrolled, Teacher, School } = require('../models/index')
+const { Student, Offer, Enrolled, Teacher, School, Course, Assignment, Homework } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
@@ -14,6 +14,50 @@ router.post('/', auth, async (req, res) => {
             console.log(err);
             res.status(400).send()
         })
+})
+
+router.get('/', auth, async (req, res) => {
+    const id = req.body.id
+    const attributes = ['firstName', 'middleName', 'lastName', 'id']
+    if (req.body.loggedAs === 'teacher') {
+        let offerPromises = []
+        let enrolledPromises = []
+        const teacher = await Teacher.findOne({ where: { id } });
+        const offers = await teacher.getOffers();
+
+        offers.forEach(offer => {
+            offerPromises.push(offer.getEnrolleds());
+        });
+
+        Promise.all(offerPromises)
+            .then(enrolleds => {
+                let jointArray = [];
+
+                enrolleds.forEach(element => {
+                    jointArray = [...jointArray, ...element]
+                });
+
+                jointArray.forEach(enrolled => {
+                    enrolledPromises.push(enrolled.getStudent({ attributes }))
+                });
+                return Promise.all(enrolledPromises)
+            })
+            .then(students => {
+                res.send(students)
+            })
+    } else {
+        School.findOne({
+            where: {
+                id
+            }
+        })
+            .then(school => {
+                return school.getStudents({ attributes });
+            })
+            .then(students => {
+                res.send(students)
+            })
+    }
 })
 
 router.post('/login', async (req, res) => {
@@ -40,16 +84,6 @@ router.post('/login', async (req, res) => {
     }
 })
 
-router.get('/:studentId', auth, async (req, res) => {
-    FindStudentById(req.params.studentId)
-        .then(student => {
-            res.send(student)
-        }).catch(err => {
-            console.log(err);
-            res.status(400).send()
-        })
-})
-
 router.delete('/:studentId', auth, async (req, res) => {
     Student.destroy({
         where: {
@@ -63,10 +97,40 @@ router.delete('/:studentId', auth, async (req, res) => {
     })
 })
 
+router.get('/:studentId', auth, async (req, res) => {
+    FindStudentById(req.params.studentId)
+        .then(student => {
+            res.send(student)
+        }).catch(err => {
+            console.log(err);
+            res.status(400).send()
+        })
+})
+
 router.get('/:studentId/enrolleds', auth, async (req, res) => {
     FindStudentById(req.params.studentId)
         .then(student => {
-            return student.getEnrolleds()
+            return student.getEnrolleds({
+                attributes: ['id', 'marks', 'result'],
+                include: [{
+                    model: Offer,
+                    attributes: ['code', 'semester'],
+                    include: [{
+                        model: Course,
+                        attributes: ['name']
+                    }, {
+                        model: Teacher,
+                        attributes: ['firstName', 'middleName', 'lastName']
+                    }]
+                }, {
+                    model: Assignment,
+                    attributes: ['mark', 'isAnswered'],
+                    include: {
+                        model: Homework,
+                        attributes: ['name']
+                    }
+                }]
+            })
         }).then(enrolleds => {
             res.send(enrolleds)
         }).catch(err => {
@@ -180,6 +244,36 @@ router.get('/:studentId/ranking', auth, async (req, res) => {
         })
 })
 
+router.get('/:studentId/assignments', auth, async (req, res) => {
+    const studentId = req.params.studentId
+    FindStudentById(studentId)
+        .then(student => {
+            return student.getAssignments()
+        })
+        .then(async assignments => {
+            let assignmentPromises = [];
+
+            assignments.forEach(assignment => {
+                assignmentPromises.push(assignment.getHomework({ attributes: ['name'] }));
+            });
+
+            return { assignments, homeworks: await Promise.all(assignmentPromises) }
+        })
+        .then((assignments, homeworks) => {
+
+            let combined = [];
+
+            for (let i = 0; i < assignments.length; i++) {
+                combined.push({
+                    mark: assignments[i].mark,
+                    isAnswered: assignment[i].isAnswered,
+                    homeworkName: homeworks[i].name
+                })
+            }
+            res.send(combined)
+        })
+})
+
 router.get('/:studentId/assignments/ratio', auth, async (req, res) => {
     const studentId = req.params.studentId
     FindStudentById(studentId)
@@ -219,49 +313,6 @@ router.get('/:studentId/assignments/marks', auth, async (req, res) => {
         })
 })
 
-router.get('/', auth, async (req, res) => {
-    console.log(req.body);
-    const id = req.body.id
-    if (req.body.loggedAs === 'teacher') {
-        let offerPromises = []
-        let enrolledPromises = []
-        const teacher = await Teacher.findOne({ where: { id } });
-        const offers = await teacher.getOffers();
-
-        offers.forEach(offer => {
-            offerPromises.push(offer.getEnrolleds());
-        });
-
-        Promise.all(offerPromises)
-            .then(enrolleds => {
-                let jointArray = [];
-
-                enrolleds.forEach(element => {
-                    jointArray = [...jointArray, ...element]
-                });
-
-                jointArray.forEach(enrolled => {
-                    enrolledPromises.push(enrolled.getStudent())
-                });
-                return Promise.all(enrolledPromises)
-            })
-            .then(students => {
-                res.send(students)
-            })
-    } else {
-        School.findOne({
-            where: {
-                id
-            }
-        })
-            .then(school => {
-                return school.getStudents();
-            })
-            .then(students => {
-                res.send(students)
-            })
-    }
-})
 
 async function CalculateStudentAverage(studentId) {
     let sum = 0;

@@ -16,6 +16,20 @@ router.post('/', async (req, res) => {
         })
 })
 
+router.get('/teachers', auth, (req, res) => {
+    console.log(req.body);
+    const id = req.body.id;
+    School.findOne({
+        where: {
+            id
+        }
+    }).then(school => {
+        return school.getTeachers({ attributes: ['firstName', 'middleName', 'lastName', 'id'] });
+    }).then(teachers => {
+        res.send(teachers)
+    })
+})
+
 router.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;

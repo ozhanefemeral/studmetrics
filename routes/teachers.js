@@ -6,7 +6,10 @@ const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 
 router.post('/', auth, async (req, res) => {
-    Teacher.create(req.body)
+    const {teacherBody} = req.body;
+    teacherBody.schoolId = req.body.id;
+
+    Teacher.create(teacherBody)
         .then(teacher => {
             res.send(teacher)
         })
