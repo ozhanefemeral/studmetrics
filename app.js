@@ -6,11 +6,13 @@ const PORT = process.env.PORT || 3000
 
 const { sequelize } = require('./models/index')
 
-if (process.env.NODE_ENV === "production") {
-    sequelize.sync({ force: true })
-} else {
-    sequelize.sync()
-}
+// if (process.env.NODE_ENV === "production") {
+//     sequelize.sync({ force: true })
+// } else {
+//     sequelize.sync()
+// }
+
+sequelize.sync()
 
 app.use(cors())
 app.use(bodyParser.json())
