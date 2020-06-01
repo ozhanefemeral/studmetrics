@@ -67,22 +67,6 @@ router.get('/:schoolId', auth, async (req, res) => {
     })
 })
 
-router.get('/:schoolId/courses', auth, async (req, res) => {
-    req.head
-    School.findOne({
-        where: {
-            id: req.params.schoolId
-        }
-    }).then(school => {
-        return school.getCourses()
-    }).then(courses => {
-        res.send(courses)
-    }).catch(err => {
-        console.log(err);
-        res.status(400).send()
-    })
-})
-
 router.get('/:schoolId/homeworks', auth, async (req, res) => {
     let offerPromises = []
     let homeworkPromises = []
@@ -115,31 +99,6 @@ router.get('/:schoolId/homeworks', auth, async (req, res) => {
             console.log(err);
             res.status(400).send()
         })
-})
-
-router.get('/:schoolId/offers', auth, async (req, res) => {
-    School.findOne({
-        where: {
-            id: req.params.schoolId
-        }
-    }).then(school => {
-        return school.getCourses()
-    }).then(courses => {
-        let promises = []
-        let allOffers = []
-        for (let i = 0; i < courses.length; i++) {
-            const el = courses[i];
-            promises.push(el.getOffers().then(offers => {
-                allOffers.push(...offers)
-            }))
-        }
-        Promise.all(promises).then(() => {
-            res.send(allOffers)
-        })
-    }).catch(err => {
-        console.log(err);
-        res.status(400).send()
-    })
 })
 
 router.get('/:schoolId/homeworks/average', auth, async (req, res) => {

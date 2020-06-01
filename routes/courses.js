@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
-const { Course } = require('../models/index')
+const { Course, School } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
@@ -17,6 +17,21 @@ router.post('/', auth, async (req, res) => {
             console.log(err);
             res.status(400).send()
         })
+})
+
+router.get('/', auth, (req, res) => {
+    School.findOne({
+        where: {
+            id: req.body.id
+        }
+    }).then(school => {
+        return school.getCourses()
+    }).then(courses => {
+        res.send(courses)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send()
+    })
 })
 
 router.get('/:id', auth, async (req, res) => {

@@ -20,6 +20,37 @@ router.post('/', auth, async (req, res) => {
         })
 });
 
+router.get('/', auth, (req, res) => {
+    if (req.body.loggedAs === 'teacher') {
+
+    } else {
+        School.findOne({
+            where: {
+                id: req.body.id
+            }
+        }).then(school => {
+            return school.getCourses()
+        }).then(courses => {
+            let offerPromises = []
+            let allOffers = [];
+            courses.forEach(course => {
+                offerPromises.push(course.getOffers().then(offers => {
+                    allOffers.push(...offers)
+                }))
+            });
+
+            Promise.all(offerPromises).
+                then(() => {
+                    res.send(allOffers)
+                })
+        })
+            .catch(err => {
+                console.log(err);
+                res.status(400).send()
+            })
+    }
+})
+
 router.get('/:offerId', auth, async (req, res) => {
     Offer.findOne({
         where: {

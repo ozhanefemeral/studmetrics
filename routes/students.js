@@ -6,7 +6,9 @@ const { Student, Offer, Enrolled, Teacher, School, Course, Assignment, Homework 
 const auth = require('../middleware/auth')
 
 router.post('/', auth, async (req, res) => {
-    Student.create(req.body)
+    const { studentBody } = req.body;
+    studentBody.schoolId = req.body.id;
+    Student.create(studentBody)
         .then(student => {
             res.send(student)
         })
@@ -19,6 +21,7 @@ router.post('/', auth, async (req, res) => {
 router.get('/', auth, async (req, res) => {
     const id = req.body.id
     const attributes = ['firstName', 'middleName', 'lastName', 'id']
+
     if (req.body.loggedAs === 'teacher') {
         let offerPromises = []
         let enrolledPromises = []
@@ -259,17 +262,19 @@ router.get('/:studentId/assignments', auth, async (req, res) => {
 
             return { assignments, homeworks: await Promise.all(assignmentPromises) }
         })
-        .then((assignments, homeworks) => {
+        .then(({ assignments, homeworks }) => {
 
             let combined = [];
+
 
             for (let i = 0; i < assignments.length; i++) {
                 combined.push({
                     mark: assignments[i].mark,
-                    isAnswered: assignment[i].isAnswered,
+                    isAnswered: assignments[i].isAnswered,
                     homeworkName: homeworks[i].name
                 })
             }
+
             res.send(combined)
         })
 })
