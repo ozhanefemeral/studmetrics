@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const { School, Homework } = require('../models/index');
 const auth = require('../middleware/auth')
 
@@ -28,30 +26,6 @@ router.get('/teachers', auth, (req, res) => {
     }).then(teachers => {
         res.send(teachers)
     })
-})
-
-router.post('/login', async (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-
-    const school = await School.findOne({
-        where: {
-            email
-        }
-    }).catch(err => {
-        console.log(err);
-        res.send(400)
-    })
-
-    const success = await bcrypt.compare(password, school.password);
-
-    if (success) {
-        const token = jwt.sign({ id: school.id, loggedAs: "school" }, 'studmetrics')
-        res.send({ token });
-
-    } else {
-        res.sendStatus(400);
-    }
 })
 
 router.get('/:schoolId', auth, async (req, res) => {

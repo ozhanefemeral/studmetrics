@@ -19,30 +19,6 @@ router.post('/', auth, async (req, res) => {
         })
 })
 
-router.post('/login', async (req, res) => {
-    const id = req.body.teacherId;
-    const password = req.body.password;
-
-    const teacher = await Teacher.findOne({
-        where: {
-            id
-        }
-    }).catch(err => {
-        console.log(err);
-        res.send(400)
-    })
-
-    const success = await bcrypt.compare(password, teacher.password);
-
-    if (success) {
-        const token = jwt.sign({ id: teacher.id, loggedAs: "teacher" }, 'studmetrics')
-        res.send({ token });
-
-    } else {
-        res.send(400);
-    }
-})
-
 router.get('/:id', auth, async (req, res) => {
     Teacher.findOne({
         where: {

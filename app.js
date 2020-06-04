@@ -26,7 +26,7 @@ app.use('/api/homeworks', require('./routes/homeworks'))
 app.use('/api/assignments', require('./routes/assignments'))
 app.use('/api/enrolleds', require('./routes/enrolleds'))
 app.use('/api/test', require('./routes/test'))
-app.use('/api/verify', require('./routes/verify'))
+app.use('/api/login', require('./routes/login'))
 
 app.use(express.static(__dirname + '/public/'));
 

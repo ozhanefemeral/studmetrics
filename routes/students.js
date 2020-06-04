@@ -63,30 +63,6 @@ router.get('/', auth, async (req, res) => {
     }
 })
 
-router.post('/login', async (req, res) => {
-    const studentId = req.body.studentId;
-    const password = req.body.password;
-
-    const student = await Student.findOne({
-        where: {
-            studentId
-        }
-    }).catch(err => {
-        res.send(err);
-    })
-
-    const success = await bcrypt.compare(password, student.password);
-
-    if (success) {
-        const token = jwt.sign({ id: student.id }, 'studmetrics')
-        console.log(token);
-        res.send({ token });
-
-    } else {
-        res.send(400);
-    }
-})
-
 router.delete('/:studentId', auth, async (req, res) => {
     Student.destroy({
         where: {
@@ -127,7 +103,7 @@ router.get('/:studentId/enrolleds', auth, async (req, res) => {
                     }]
                 }, {
                     model: Assignment,
-                    attributes: ['mark', 'isAnswered'],
+                    attributes: ['mark', 'isAnswered', 'isReviewed'],
                     include: {
                         model: Homework,
                         attributes: ['name']
