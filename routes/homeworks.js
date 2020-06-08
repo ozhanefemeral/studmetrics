@@ -49,13 +49,28 @@ router.post('/', auth, async (req, res) => {
 })
 
 router.get('/:homeworkId/assignments', auth, async (req, res) => {
-    Homework.findOne({
-        where: {
-            id: req.params.homeworkId
-        }
-    })
-        .then(homework => homework.getAssignments())
-        .then(assignments => res.send(assignments))
+    if (req.params.attributes) {
+        Homework.findOne({
+            where: {
+                id: req.params.homeworkId
+            },
+        })
+            .then(homework => homework.getAssignments({
+                attributes
+            }))
+            .then(assignments => res.send(assignments))
+    }
+    else {
+        Homework.findOne({
+            where: {
+                id: req.params.homeworkId
+            },
+        })
+            .then(homework => homework.getAssignments({
+                include: 'Student'
+            }))
+            .then(assignments => res.send(assignments))
+    }
 })
 
 router.get('/:homeworkId', auth, async (req, res) => {

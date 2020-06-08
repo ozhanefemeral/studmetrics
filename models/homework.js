@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     questions: DataTypes.ARRAY(DataTypes.JSON),
     lockAfterAnswering: { type: DataTypes.BOOLEAN, defaultValue: false },
-    average: DataTypes.FLOAT
+    average: { type: DataTypes.FLOAT, decimals: 3 }
   }, {});
   Homework.associate = function (models) {
     Homework.belongsTo(models.Offer, {

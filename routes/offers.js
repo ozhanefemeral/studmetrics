@@ -51,6 +51,20 @@ router.get('/', auth, (req, res) => {
     }
 })
 
+router.patch('/:offerId', auth, async (req, res) => {
+    Offer.findOne({
+        where: {
+            id: req.params.offerId
+        }
+    }).then(offer => {
+        return offer.getEnrolleds()
+        res.send(offer)
+    }).catch(err => {
+        console.log(err);
+        res.status(400).send()
+    })
+})
+
 router.get('/:offerId', auth, async (req, res) => {
     Offer.findOne({
         where: {
@@ -77,31 +91,20 @@ router.get('/:offerId/homeworks', auth, async (req, res) => {
     })
 });
 
-router.get('/:offerId/students', auth, async (req, res) => {
-
-    let studentPromises = []
-    let students = []
+router.get('/:offerId/enrolleds', auth, async (req, res) => {
     Enrolled.findAll({
         where: {
             offerId: req.params.offerId
-        }
+        },
+        attributes: req.query.attributes,
+        include: [
+            { model: Student, attributes: ['firstName', 'middleName', 'lastName', 'id'] }
+        ]
     }).then(enrolleds => {
-        for (let i = 0; i < enrolleds.length; i++) {
-            const el = enrolleds[i].dataValues;
-            studentPromises.push(Student.findOne({
-                where: {
-                    id: el.studentId
-                }
-            }).then(student => {
-                students.push(student)
-            }))
-        }
-        Promise.all(studentPromises).then(() => {
-            res.send(students)
-        })
+        res.send(enrolleds)
     }).catch(err => {
         console.log(err);
-        res.status(400).send()
+        res.sendStatus(400)
     })
 });
 

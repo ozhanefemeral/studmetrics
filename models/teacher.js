@@ -33,6 +33,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     password: DataTypes.STRING,
+    average: {
+      type: DataTypes.FLOAT
+    }
   }, {});
 
   Teacher.beforeCreate(async (teacher, options) => {

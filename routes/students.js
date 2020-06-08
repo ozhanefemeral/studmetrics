@@ -93,7 +93,7 @@ router.get('/:studentId/enrolleds', auth, async (req, res) => {
                 attributes: ['id', 'marks', 'result'],
                 include: [{
                     model: Offer,
-                    attributes: ['code', 'semester'],
+                    attributes: ['semester', 'code', 'average'],
                     include: [{
                         model: Course,
                         attributes: ['name']
@@ -106,7 +106,7 @@ router.get('/:studentId/enrolleds', auth, async (req, res) => {
                     attributes: ['mark', 'isAnswered', 'isReviewed'],
                     include: {
                         model: Homework,
-                        attributes: ['name']
+                        attributes: ['name', 'average']
                     }
                 }]
             })
@@ -233,7 +233,7 @@ router.get('/:studentId/assignments', auth, async (req, res) => {
             let assignmentPromises = [];
 
             assignments.forEach(assignment => {
-                assignmentPromises.push(assignment.getHomework({ attributes: ['name'] }));
+                assignmentPromises.push(assignment.getHomework({ attributes: ['name', 'average'] }));
             });
 
             return { assignments, homeworks: await Promise.all(assignmentPromises) }
@@ -254,46 +254,6 @@ router.get('/:studentId/assignments', auth, async (req, res) => {
             res.send(combined)
         })
 })
-
-router.get('/:studentId/assignments/ratio', auth, async (req, res) => {
-    const studentId = req.params.studentId
-    FindStudentById(studentId)
-        .then(student => {
-            return student.getAssignments()
-        })
-        .then(assignments => {
-            let filtered = assignments.filter(el => el.createdAt.toString() != el.updatedAt.toString())
-
-            res.send({
-                all: assignments.length,
-                completed: filtered.length
-            })
-        })
-})
-
-router.get('/:studentId/assignments/marks', auth, async (req, res) => {
-    const studentId = req.params.studentId
-    let marks = []
-
-    FindStudentById(studentId)
-        .then(student => {
-            return student.getAssignments()
-        })
-        .then(assignments => {
-            let filtered = assignments.filter(el => el.createdAt.toString() != el.updatedAt.toString())
-            for (let i = 0; i < filtered.length; i++) {
-                const el = filtered[i];
-                marks.push({
-                    mark: el.mark,
-                    homeworkId: el.homeworkId,
-                    offerId: el.offerId
-                })
-            }
-
-            res.send(marks)
-        })
-})
-
 
 async function CalculateStudentAverage(studentId) {
     let sum = 0;

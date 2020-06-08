@@ -1,20 +1,45 @@
 const express = require('express')
 const router = express.Router()
 
-const { Assignment, Homework } = require('../models/index')
+const { Assignment, Homework, Student } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.get('/:assignmentId', auth, async (req, res) => {
-    Assignment.findOne({
-        where: {
-            id: req.params.assignmentId
-        }
-    }).then(assignment => {
-        res.send(assignment)
-    }).catch(err => {
-        console.log(err);
-        res.status(400).send()
-    })
+    console.log(req.query.attributes);
+
+    if (req.query.attributes) {
+        Assignment.findOne({
+            where: {
+                id: req.params.assignmentId
+            },
+            attributes: req.query.attributes,
+            include: [{
+                model: Student,
+                attributes: ['firstName', 'middleName', 'lastName',]
+            }, { model: Homework, attributes: ['average', 'name', 'questions'] }]
+        }).then(assignment => {
+            res.send(assignment)
+        }).catch(err => {
+            console.log(err);
+            res.status(400).send()
+        })
+
+    } else {
+        Assignment.findOne({
+            where: {
+                id: req.params.assignmentId
+            },
+            include: [{
+                model: Student,
+                attributes: ['firstName', 'middleName', 'lastName',]
+            }, { model: Homework, attributes: ['average', 'name', 'questions'] }]
+        }).then(assignment => {
+            res.send(assignment)
+        }).catch(err => {
+            console.log(err);
+            res.status(400).send()
+        })
+    }
 })
 
 router.patch('/:assignmentId', auth, async (req, res) => {
@@ -57,6 +82,7 @@ router.patch('/:assignmentId', auth, async (req, res) => {
 
 router.patch('/review/:assignmentId', auth, async (req, res) => {
     req.body.mark = 0
+    console.log(req.body);
 
     const assignment = await Assignment.findOne({
         where: {

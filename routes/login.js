@@ -4,6 +4,16 @@ const { School, Teacher, Student } = require('../models/index');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+router.post('/verifyToken', (req, res) => {
+    const token = req.body.token;
+    const decoded = jwt.verify(token, 'studmetrics');
+    if (decoded) {
+        res.send(decoded)
+    } else {
+        res.sendStatus(400)
+    }
+})
+
 router.post('/teacher', async (req, res) => {
     const id = req.body.teacherId;
     const password = req.body.password;
