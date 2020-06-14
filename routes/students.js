@@ -118,51 +118,6 @@ router.get('/:studentId/enrolleds', auth, async (req, res) => {
         })
 })
 
-router.get('/:studentId/average/all', auth, async (req, res) => {
-    const studentId = req.params.studentId;
-    CalculateStudentAverage(studentId)
-        .then(average => {
-            res.send({ average: average })
-        })
-        .catch(err => {
-            console.log(err);
-            res.send(400)
-        })
-})
-
-router.get('/:studentId/average/:enrolledId', auth, async (req, res) => {
-    const enrolledId = req.params.enrolledId
-
-    let sum = 0;
-
-    Enrolled.findOne({
-        where: {
-            id: enrolledId
-        }
-    }).then(enrolled => {
-        return enrolled.getAssignments()
-    }).then(assignments => {
-        let filtered = assignments.filter(el => el.isReviewed == true)
-        let reviewedCount = filtered.length
-
-        for (let i = 0; i < reviewedCount; i++) {
-            const el = filtered[i].mark;
-
-            sum += el;
-        }
-
-        let average = sum / reviewedCount
-
-        res.send({ average: average })
-    })
-        .catch(err => {
-            console.log(err);
-            res.sendStatus(400)
-        })
-
-
-})
-
 router.post('/:studentId/enroll', auth, async (req, res) => {
     let promises = []
 

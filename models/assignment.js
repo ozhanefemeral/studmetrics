@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         let sum = 0;
 
         assignments.forEach(element => {
-          sum += element.mark;
+          sum += parseFloat(element.mark);
         })
 
         homework.average = sum / assignments.length;

@@ -11,12 +11,14 @@ module.exports = (sequelize, DataTypes) => {
         }).then(({ offer, enrolleds }) => {
           let sum = 0;
           enrolleds.forEach(element => {
-            sum += element.result
+            sum += parseFloat(element.result)
+
           });
           const average = sum / enrolleds.length;
           if (average == NaN) {
             average = 0;
           }
+
           offer.average = average;
           offer.save()
         });
