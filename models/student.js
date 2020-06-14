@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
   const Op = Sequelize.Op
 
   const Student = sequelize.define('Student', {
+    id: {
+      primaryKey: true,
+      type: DataTypes.BIGINT(11)
+    },
     firstName: {
       type: DataTypes.STRING,
       validate: {
@@ -27,14 +31,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       required: true
     },
-    birthday: {
+    dateOfBirth: {
       required: true,
       type: DataTypes.DATEONLY
     },
     password: DataTypes.STRING,
-    studentId: {
-      type: DataTypes.STRING
-    }
   }, {});
   Student.associate = function (models) {
     Student.belongsTo(models.School, {
@@ -49,8 +50,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   Student.beforeCreate(async (student, options) => {
-    student.password = student.lastName.toLowerCase() + student.birthday.substr(0, 4);
-
+    student.password = student.lastName.toLowerCase() + student.dateOfBirth.substr(0, 4);
     const currentDate = new Date();
 
     const students = await Student.findAll({
@@ -62,9 +62,16 @@ module.exports = (sequelize, DataTypes) => {
       }
     });
 
-    student.studentId = currentDate.getFullYear() + (students.length + 1).toString();
+    const studentNoString = (students.length + 1).toString()
+
+    const zeroCount = 4 - studentNoString.length;
+    let lastPart = '0'.repeat(zeroCount);
+
+    lastPart += studentNoString
+
     const hashedPassword = await hashPassword(student.password);
     student.password = hashedPassword;
+    student.id = parseInt(student.schoolId.toString() + "0" + currentDate.getFullYear().toString().substr(2, 2) + lastPart)
   });
 
   return Student;

@@ -5,6 +5,10 @@ const Op = require('sequelize').Op;
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Teacher = sequelize.define('Teacher', {
+    id: {
+      primaryKey: true,
+      type: DataTypes.BIGINT(11)
+    },
     firstName: {
       type: DataTypes.STRING,
       validate: {
@@ -25,21 +29,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       required: true
     },
-    birthday: {
+    dateOfBirth: {
       required: true,
       type: DataTypes.DATEONLY
     },
-    teacherId: {
-      type: DataTypes.STRING
-    },
     password: DataTypes.STRING,
     average: {
-      type: DataTypes.FLOAT
+      type: DataTypes.DECIMAL(10, 2)
     }
   }, {});
 
   Teacher.beforeCreate(async (teacher, options) => {
-    teacher.password = teacher.lastName.toLowerCase() + teacher.birthday.substr(0, 4);
+    teacher.password = teacher.lastName.toLowerCase() + teacher.dateOfBirth.substr(0, 4);
     const hashedPassword = await hashPassword(teacher.password);
     const currentDate = new Date();
     const teachers = await Teacher.findAll({
@@ -51,7 +52,13 @@ module.exports = (sequelize, DataTypes) => {
       }
     });
 
-    teacher.teacherId = currentDate.getFullYear() + (teachers.length + 1).toString();
+    const teacherNoString = (teachers.length + 1).toString()
+    const zeroCount = 4 - teacherNoString.length;
+    let lastPart = '0'.repeat(zeroCount);
+    
+    lastPart += teacherNoString
+
+    teacher.id = parseInt(teacher.schoolId.toString() + "1" + currentDate.getFullYear().toString().substr(2, 2) + lastPart)
     teacher.password = hashedPassword;
   });
 

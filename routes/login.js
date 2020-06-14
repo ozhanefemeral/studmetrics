@@ -15,8 +15,7 @@ router.post('/verifyToken', (req, res) => {
 })
 
 router.post('/teacher', async (req, res) => {
-    const id = req.body.teacherId;
-    const password = req.body.password;
+    const { id, password } = req.body;
 
     const teacher = await Teacher.findOne({
         where: {
@@ -39,8 +38,7 @@ router.post('/teacher', async (req, res) => {
 })
 
 router.post('/school', async (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
+    const { email, password } = req.body;
 
     const school = await School.findOne({
         where: {
@@ -63,8 +61,7 @@ router.post('/school', async (req, res) => {
 })
 
 router.post('/student', async (req, res) => {
-    const id = req.body.studentId;
-    const password = req.body.password;
+    const { id, password } = req.body;
 
     const student = await Student.findOne({
         where: {
@@ -72,7 +69,7 @@ router.post('/student', async (req, res) => {
         }
     }).catch(err => {
         console.log(err);
-        res.send(400)
+        res.sendStatus(400)
     })
 
     const success = await bcrypt.compare(password, student.password);
@@ -82,13 +79,12 @@ router.post('/student', async (req, res) => {
         res.send({ token, id });
 
     } else {
-        res.send(400);
+        res.sendStatus(400);
     }
 })
 
 router.post('/parent', async (req, res) => {
-    const id = req.body.studentId;
-    const password = req.body.password;
+    const { id, password } = req.body
 
     const student = await Student.findOne({
         where: {

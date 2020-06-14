@@ -65,8 +65,6 @@ router.post('/courses', auth, async (req, res) => {
             return { offer, students }
         })
         .then((offer, students) => {
-            console.log(students);
-
             for (let i = 0; i < students.length; i++) {
                 const el = students[i]
                 enrolledPromises.push(Enrolled.create({

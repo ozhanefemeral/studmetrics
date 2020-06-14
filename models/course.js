@@ -6,6 +6,9 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         len: [3, 40]
       },
+    },
+    average: {
+      type: DataTypes.DECIMAL(10, 2)
     }
   }, {});
   Course.associate = function (models) {

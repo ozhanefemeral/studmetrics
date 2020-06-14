@@ -6,8 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       required: true
     },
-    average: { type: DataTypes.FLOAT, decimals: 3 },
-    homeworkAverage: { type: DataTypes.FLOAT, decimals: 3 },
+    average: { type: DataTypes.DECIMAL(10, 2) },
+    homeworkAverage: { type: DataTypes.DECIMAL(10, 2) },
     files: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       default: ""
@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
           sum += element.average;
         })
 
-        teacher.average = sum / results.length;
+        teacher.average = sum / offers.length;
         teacher.save()
       }
     }

@@ -1,23 +1,42 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Enrolled = sequelize.define('Enrolled', {
-    result: { type: DataTypes.FLOAT, decimals: 3 },
+    result: { type: DataTypes.DECIMAL(10, 2) },
     marks: { type: DataTypes.ARRAY(DataTypes.JSON), defaultValue: [] }
   }, {
     hooks: {
       afterSave: async (enrolled, options) => {
-        const offer = await enrolled.getOffer()
-        const results = await offer.getEnrolleds({ attributes: ['result'] })
+        enrolled.getOffer().then(async offer => {
+          return { offer, enrolleds: await offer.getEnrolleds({ attributes: ['result'] }) }
+        }).then(({ offer, enrolleds }) => {
+          let sum = 0;
+          enrolleds.forEach(element => {
+            sum += element.result
+          });
+          const average = sum / enrolleds.length;
+          if (average == NaN) {
+            average = 0;
+          }
+          offer.average = average;
+          offer.save()
+        });
 
-        let sum = 0;
+        enrolled.getStudent().then(async student => {
+          return { student, enrolleds: await student.getEnrolleds({ attributes: ['result'] }) }
+        }).then(({ student, enrolleds }) => {
+          let sum = 0;
 
+          enrolleds.forEach(element => {
+            sum += element.result
+          });
 
-        results.forEach(element => {
-          sum += element.result;
+          const average = sum / enrolleds.length;
+          if (average == NaN) {
+            average = 0;
+          }
+          student.average = average;
+          student.save()
         })
-
-        offer.average = sum / results.length;
-        offer.save()
       }
     }
   });

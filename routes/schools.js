@@ -15,14 +15,13 @@ router.post('/', async (req, res) => {
 })
 
 router.get('/teachers', auth, (req, res) => {
-    console.log(req.body);
     const id = req.body.id;
     School.findOne({
         where: {
             id
         }
     }).then(school => {
-        return school.getTeachers({ attributes: ['firstName', 'middleName', 'lastName', 'id'] });
+        return school.getTeachers({ attributes: ['firstName', 'middleName', 'lastName', 'id', 'average'] });
     }).then(teachers => {
         res.send(teachers)
     })

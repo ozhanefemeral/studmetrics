@@ -96,17 +96,17 @@ router.get('/:studentId/enrolleds', auth, async (req, res) => {
                     attributes: ['semester', 'code', 'average'],
                     include: [{
                         model: Course,
-                        attributes: ['name']
+                        attributes: ['name', 'average']
                     }, {
                         model: Teacher,
                         attributes: ['firstName', 'middleName', 'lastName']
                     }]
                 }, {
                     model: Assignment,
-                    attributes: ['mark', 'isAnswered', 'isReviewed'],
+                    attributes: ['mark', 'isAnswered', 'isReviewed', 'id'],
                     include: {
                         model: Homework,
-                        attributes: ['name', 'average']
+                        attributes: ['name', 'average', 'id']
                     }
                 }]
             })

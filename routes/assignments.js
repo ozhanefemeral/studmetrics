@@ -5,8 +5,6 @@ const { Assignment, Homework, Student } = require('../models/index')
 const auth = require('../middleware/auth')
 
 router.get('/:assignmentId', auth, async (req, res) => {
-    console.log(req.query.attributes);
-
     if (req.query.attributes) {
         Assignment.findOne({
             where: {
@@ -61,7 +59,7 @@ router.patch('/:assignmentId', auth, async (req, res) => {
         const question = homework.dataValues.questions[i];
         if (question.answer != undefined) {
             if (req.body.answers[i] == question.answer) {
-                req.body.mark += parseInt(question.point)
+                req.body.mark += parseFloat(question.point)
                 req.body.points[i] = question.point;
                 req.body.isCorrect.push(true)
             } else {
@@ -97,7 +95,7 @@ router.patch('/review/:assignmentId', auth, async (req, res) => {
             assignment.points[i] = 0;
             req.body.isCorrect[i] = false
         }
-        req.body.mark += assignment.points[i]
+        req.body.mark += parseFloat(assignment.points[i])
     }
 
     req.body.isReviewed = true

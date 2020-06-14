@@ -1,10 +1,10 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Assignment = sequelize.define('Assignment', {
-    mark: DataTypes.INTEGER,
+    mark: DataTypes.DECIMAL(10, 2),
     answers: DataTypes.ARRAY(DataTypes.JSON),
     isCorrect: DataTypes.ARRAY(DataTypes.BOOLEAN),
-    points: { type: DataTypes.ARRAY({ type: DataTypes.FLOAT, decimals: 3 }), defaultValue: [].fill(0) },
+    points: { type: DataTypes.ARRAY(DataTypes.DECIMAL(10, 2)), defaultValue: [].fill(0) },
     isAnswered: { type: DataTypes.BOOLEAN, defaultValue: false },
     isReviewed: { type: DataTypes.BOOLEAN, defaultValue: false },
   }, {
