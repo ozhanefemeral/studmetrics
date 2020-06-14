@@ -15,18 +15,18 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     hooks: {
       afterSave: async (offer, options) => {
-        const teacher = await offer.getTeacher()
-        const offers = await teacher.getOffers({ attributes: ['average'] })
+        // const teacher = await offer.getTeacher()
+        // const offers = await teacher.getOffers({ attributes: ['average'] })
 
-        let sum = 0;
+        // let sum = 0;
 
-        offers.forEach(element => {
+        // offers.forEach(element => {
 
-          sum += element.average;
-        })
+        //   sum += element.average;
+        // })
 
-        teacher.average = sum / offers.length;
-        teacher.save()
+        // teacher.average = sum / offers.length;
+        // teacher.save()
       }
     }
   });

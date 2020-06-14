@@ -12,22 +12,21 @@ router.post('/restart', async (req, res) => {
 })
 
 router.post('/students', auth, async (req, res) => {
-    let studentPromises = []
+    let students = []
 
     for (let i = 0; i < 10; i++) {
-        studentPromises.push(Student.create({
+        await Student.create({
             firstName: faker.name.firstName(),
             lastName: faker.name.lastName(),
             schoolId: req.body.id,
-            birthday: new Date().toISOString().substr(0, 10),
+            dateOfBirth: new Date().toISOString().substr(0, 10),
             studentId: i
-        }))
+        }).then(student => {
+            students.push(student)
+        })
     }
 
-    Promise.all(studentPromises)
-        .then(students => {
-            res.send(students)
-        })
+    res.send(students)
 })
 
 router.post('/teachers', auth, async (req, res) => {
@@ -35,7 +34,7 @@ router.post('/teachers', auth, async (req, res) => {
         firstName: faker.name.firstName(),
         lastName: faker.name.lastName(),
         schoolId: req.body.id,
-        birthday: new Date().toISOString().substr(0, 10)
+        dateOfBirth: new Date().toISOString().substr(0, 10)
     })
         .then(teacher => {
             res.send(teacher)

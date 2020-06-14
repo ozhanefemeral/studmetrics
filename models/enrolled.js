@@ -21,22 +21,22 @@ module.exports = (sequelize, DataTypes) => {
           offer.save()
         });
 
-        enrolled.getStudent().then(async student => {
-          return { student, enrolleds: await student.getEnrolleds({ attributes: ['result'] }) }
-        }).then(({ student, enrolleds }) => {
-          let sum = 0;
+        // enrolled.getStudent().then(async student => {
+        //   return { student, enrolleds: await student.getEnrolleds({ attributes: ['result'] }) }
+        // }).then(({ student, enrolleds }) => {
+        //   let sum = 0;
 
-          enrolleds.forEach(element => {
-            sum += element.result
-          });
+        //   enrolleds.forEach(element => {
+        //     sum += element.result
+        //   });
 
-          const average = sum / enrolleds.length;
-          if (average == NaN) {
-            average = 0;
-          }
-          student.average = average;
-          student.save()
-        })
+        //   const average = sum / enrolleds.length;
+        //   if (average == NaN) {
+        //     average = 0;
+        //   }
+        //   student.average = average;
+        //   student.save()
+        // })
       }
     }
   });

@@ -80,7 +80,6 @@ router.patch('/:assignmentId', auth, async (req, res) => {
 
 router.patch('/review/:assignmentId', auth, async (req, res) => {
     req.body.mark = 0
-    console.log(req.body);
 
     const assignment = await Assignment.findOne({
         where: {
