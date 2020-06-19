@@ -63,6 +63,8 @@ router.post('/school', async (req, res) => {
 router.post('/student', async (req, res) => {
     const { id, password } = req.body;
 
+    console.log(id, password);
+
     const student = await Student.findOne({
         where: {
             id

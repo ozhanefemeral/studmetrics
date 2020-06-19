@@ -93,7 +93,7 @@ router.get('/:studentId/enrolleds', auth, async (req, res) => {
                 attributes: ['id', 'marks', 'result'],
                 include: [{
                     model: Offer,
-                    attributes: ['semester', 'code', 'average'],
+                    attributes: ['semester', 'code', 'average', 'id'],
                     include: [{
                         model: Course,
                         attributes: ['name', 'average']

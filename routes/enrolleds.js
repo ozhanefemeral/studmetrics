@@ -17,11 +17,16 @@ router.patch('/', auth, (req, res) => {
     const { marks, studentId, offerId } = req.body;
 
     let sum = 0;
+    let totalMultipliers = 0;
+
     marks.forEach(mark => {
-        sum += mark.points * mark.percentage;
+        for (let i = 0; i < mark.multiplier; i++) {
+            totalMultipliers++;
+            sum += mark.points;
+        }
     });
 
-    const average = sum / (marks.length * 100);
+    const average = sum / totalMultipliers;
 
     if (average == NaN) {
         average = 0;

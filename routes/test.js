@@ -14,13 +14,22 @@ router.post('/restart', async (req, res) => {
 router.post('/students', auth, async (req, res) => {
     let students = []
 
-    for (let i = 0; i < 10; i++) {
+    let ozhan = await Student.create({
+        firstName: 'Özhan',
+        middleName: 'Efe',
+        lastName: "Meral",
+        schoolId: req.body.id,
+        dateOfBirth: new Date().toISOString().substr(0, 10),
+    })
+
+    students.push(ozhan)
+
+    for (let i = 0; i < 9; i++) {
         await Student.create({
             firstName: faker.name.firstName(),
             lastName: faker.name.lastName(),
             schoolId: req.body.id,
             dateOfBirth: new Date().toISOString().substr(0, 10),
-            studentId: i
         }).then(student => {
             students.push(student)
         })
