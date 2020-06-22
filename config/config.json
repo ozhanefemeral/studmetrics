@@ -1,15 +1,15 @@
 {
   "development": {
-    "username": "efebey",
-    "password": "Ozhanburadaydi.",
+    "username": "ozhanefe",
+    "password": "Efeburadaydi.1",
     "database": "stud_dev",
     "host": "127.0.0.1",
     "dialect": "postgres",
     "operatorsAliases": false
   },
   "test": {
-    "username": "efebey",
-    "password": "Ozhanburadaydi.",
+    "username": "ozhanefe",
+    "password": "Efeburadaydi.1",
     "database": "stud_test",
     "host": "127.0.0.1",
     "dialect": "postgres",
