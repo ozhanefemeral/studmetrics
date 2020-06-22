@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-var multer = require('multer')
-var upload = multer({ dest: 'uploads/' })
 
 const { Offer, Enrolled, Student, Homework, Teacher, School } = require('../models/index');
 const auth = require('../middleware/auth');
